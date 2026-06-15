@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { seedFitProDemoUsers } from "@/lib/fitpro-seed.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,185 +24,315 @@ export const Route = createFileRoute("/")({
   component: FitProApp,
 });
 
+type Role = "DONO" | "ADMIN" | "PERSONAL" | "ALUNO";
+type AppSession = {
+  user_id: string;
+  email: string;
+  nome: string;
+  role: Role;
+  aluno_id: string | null;
+  personal_id: string | null;
+};
+
+declare global {
+  interface Window {
+    __fp?: {
+      sb: typeof supabase;
+      session: AppSession;
+      signOut: () => Promise<void>;
+    };
+    __startFitProApp?: (session: AppSession) => void;
+    __stopFitProApp?: () => void;
+  }
+}
+
 function FitProApp() {
+  const seedFn = useServerFn(seedFitProDemoUsers);
+  const [booting, setBooting] = useState(true);
+  const [session, setSession] = useState<AppSession | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginErr, setLoginErr] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const initialized = useRef(false);
+
+  // Boot: seed demo users (idempotente) + checa sessão atual
   useEffect(() => {
-    // Equivalente ao DOMContentLoaded para SPA — dispara a rotina mãe.
-    if (typeof window !== "undefined") {
-      // @ts-expect-error injetado em runtime
-      window.initSystem?.();
+    if (initialized.current) return;
+    initialized.current = true;
+    (async () => {
+      try {
+        await seedFn({});
+      } catch (e) {
+        console.warn("seed demo users:", e);
+      }
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const built = await buildAppSession(data.session.user.id);
+        if (built) setSession(built);
+      }
+      setBooting(false);
+    })();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (evt, s) => {
+      if (evt === "SIGNED_OUT") {
+        setSession(null);
+        window.__stopFitProApp?.();
+      }
+      if (evt === "SIGNED_IN" && s) {
+        const built = await buildAppSession(s.user.id);
+        if (built) setSession(built);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [seedFn]);
+
+  // Quando a sessão entra/sai, inicia ou para o motor vanilla
+  useEffect(() => {
+    if (!session) return;
+    window.__fp = {
+      sb: supabase,
+      session,
+      signOut: async () => {
+        await supabase.auth.signOut();
+      },
+    };
+    // pequeno atraso garante que o DOM dos shells está montado
+    const t = setTimeout(() => window.__startFitProApp?.(session), 0);
+    return () => clearTimeout(t);
+  }, [session]);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginErr(null);
+    setLoginLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+    setLoginLoading(false);
+    if (error || !data.session) {
+      setLoginErr(error?.message ?? "Credenciais inválidas.");
+      return;
     }
-  }, []);
+    const built = await buildAppSession(data.session.user.id);
+    if (!built) {
+      setLoginErr("Usuário sem papel atribuído. Contate o administrador.");
+      await supabase.auth.signOut();
+      return;
+    }
+    setSession(built);
+  }
+
+  if (booting) {
+    return (
+      <>
+        <style>{CSS}</style>
+        <div className="screen" style={{ alignItems: "center", justifyContent: "center" }}>
+          <div className="glass auth-card" style={{ textAlign: "center" }}>
+            <h1 className="brand">FitPro <span>GYM2</span></h1>
+            <p className="subtitle">Conectando ao Lovable Cloud...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <style>{CSS}</style>
 
-      {/* ===================== LOGIN ===================== */}
-      <section id="screen-login" className="screen">
-        <div className="glass auth-card">
-          <h1 className="brand">FitPro <span>GYM2</span></h1>
-          <p className="subtitle">Ecossistema Premium de Gestão Fitness</p>
-          <label>Usuário</label>
-          <input id="login-user" autoComplete="off" placeholder="dono | admin | personal | aluno" />
-          <label>Senha</label>
-          <input id="login-pass" type="password" placeholder="senha: 123" />
-          <button id="btn-login" className="btn-primary">Acessar Plataforma</button>
-          <p id="login-error" className="error hidden"></p>
-          <p className="hint">Perfis demo: dono / admin / personal / aluno (senha: 123)</p>
-        </div>
-      </section>
-
-      {/* ===================== APP SHELL ===================== */}
-      <section id="screen-app" className="screen hidden">
-        <aside className="sidebar glass">
-          <h2 className="brand-mini">FitPro <span>GYM2</span></h2>
-          <nav id="nav-menu"></nav>
-          <div className="user-box">
-            <div id="user-avatar" className="avatar"></div>
-            <div>
-              <p id="user-name"></p>
-              <p id="user-role" className="role-tag"></p>
+      {!session && (
+        <section id="screen-login" className="screen">
+          <form className="glass auth-card" onSubmit={handleLogin}>
+            <h1 className="brand">FitPro <span>GYM2</span></h1>
+            <p className="subtitle">Ecossistema Premium de Gestão Fitness</p>
+            <label>Email</label>
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="dono@fitpro.local"
+              required
+            />
+            <label>Senha</label>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+            <button type="submit" className="btn-primary" disabled={loginLoading}>
+              {loginLoading ? "Autenticando..." : "Acessar Plataforma"}
+            </button>
+            {loginErr && <p className="error">{loginErr}</p>}
+            <div className="demo-hint glass-inner">
+              <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>
+                Contas demo (auto-criadas):
+              </p>
+              <p style={{ fontSize: 11, fontFamily: "monospace", lineHeight: 1.7 }}>
+                dono@fitpro.local · FitPro@Dono2026<br />
+                admin@fitpro.local · FitPro@Admin2026<br />
+                personal@fitpro.local · FitPro@Personal2026<br />
+                aluno@fitpro.local · FitPro@Aluno2026
+              </p>
             </div>
-            <button id="btn-logout" className="btn-ghost">Sair</button>
-          </div>
-        </aside>
+          </form>
+        </section>
+      )}
 
-        <main className="content">
-          {/* DASHBOARD */}
-          <section id="view-dashboard" className="view glass hidden">
-            <h2>Painel Estratégico</h2>
-            <div id="dashboard-cards" className="cards-grid"></div>
-            <div id="dashboard-financeiro" className="finance-box glass-inner hidden">
-              <h3>Faturamento Consolidado</h3>
-              <div id="finance-metrics" className="metrics"></div>
+      {session && (
+        <section id="screen-app" className="screen">
+          <aside className="sidebar glass">
+            <h2 className="brand-mini">FitPro <span>GYM2</span></h2>
+            <nav id="nav-menu"></nav>
+            <div className="user-box">
+              <div id="user-avatar" className="avatar"></div>
+              <div>
+                <p id="user-name"></p>
+                <p id="user-role" className="role-tag"></p>
+              </div>
+              <button
+                id="btn-logout"
+                className="btn-ghost"
+                onClick={() => window.__fp?.signOut()}
+              >
+                Sair
+              </button>
             </div>
-          </section>
+          </aside>
 
-          {/* ALUNOS / MATRÍCULAS */}
-          <section id="view-alunos" className="view glass hidden">
-            <header className="view-header">
-              <h2>Matrículas & Alunos</h2>
-              <button id="btn-novo-aluno" className="btn-primary">+ Nova Matrícula</button>
-            </header>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>Nome</th><th>Plano</th><th>Status Financeiro</th><th>Biometria</th><th>Ações</th></tr>
-                </thead>
-                <tbody id="alunos-tbody"></tbody>
-              </table>
-            </div>
-          </section>
+          <main className="content">
+            <section id="view-dashboard" className="view glass hidden">
+              <h2>Painel Estratégico</h2>
+              <div id="dashboard-cards" className="cards-grid"></div>
+              <div id="dashboard-financeiro" className="finance-box glass-inner hidden">
+                <h3>Faturamento Consolidado</h3>
+                <div id="finance-metrics" className="metrics"></div>
+              </div>
+            </section>
 
-          {/* BIOMETRIA */}
-          <section id="view-biometria" className="view glass hidden">
-            <h2>Cadastro de Biometria Digital & Facial</h2>
-            <div className="bio-grid">
-              <div className="glass-inner bio-card">
-                <h3>Aluno Selecionado</h3>
-                <select id="bio-aluno-select"></select>
-                <p>Status financeiro: <span id="bio-status" className="role-tag"></span></p>
+            <section id="view-alunos" className="view glass hidden">
+              <header className="view-header">
+                <h2>Matrículas & Alunos</h2>
+                <button id="btn-novo-aluno" className="btn-primary">+ Nova Matrícula</button>
+              </header>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Nome</th><th>Plano</th><th>Status Financeiro</th><th>Biometria</th><th>Ações</th></tr>
+                  </thead>
+                  <tbody id="alunos-tbody"></tbody>
+                </table>
               </div>
-              <div className="glass-inner bio-card">
-                <h3>Digital (USB-Persona)</h3>
-                <div id="bio-digital-preview" className="bio-preview">Aguardando leitor...</div>
-                <button id="btn-capturar-digital" className="btn-primary">Capturar Template</button>
-              </div>
-              <div className="glass-inner bio-card">
-                <h3>Reconhecimento Facial</h3>
-                <div id="bio-facial-preview" className="bio-preview">Sem captura</div>
-                <button id="btn-capturar-facial" className="btn-primary">Processar Selfie</button>
-              </div>
-              <div className="glass-inner bio-card">
-                <h3>Simulador Catraca iDFace</h3>
-                <button id="btn-simular-catraca" className="btn-secondary">Tentar Acesso</button>
-                <p id="catraca-log" className="catraca-log"></p>
-              </div>
-            </div>
-          </section>
+            </section>
 
-          {/* PDV */}
-          <section id="view-pdv" className="view glass hidden">
-            <h2>PDV de Balcão — Recepção Expressa</h2>
-            <div className="pdv-grid">
-              <div className="glass-inner">
-                <h3>Catálogo</h3>
-                <div id="pdv-catalogo" className="catalog-grid"></div>
+            <section id="view-biometria" className="view glass hidden">
+              <h2>Cadastro de Biometria Digital & Facial</h2>
+              <div className="bio-grid">
+                <div className="glass-inner bio-card">
+                  <h3>Aluno Selecionado</h3>
+                  <select id="bio-aluno-select"></select>
+                  <p>Status financeiro: <span id="bio-status" className="role-tag"></span></p>
+                </div>
+                <div className="glass-inner bio-card">
+                  <h3>Digital (USB-Persona)</h3>
+                  <div id="bio-digital-preview" className="bio-preview">Aguardando leitor...</div>
+                  <button id="btn-capturar-digital" className="btn-primary">Capturar Template</button>
+                </div>
+                <div className="glass-inner bio-card">
+                  <h3>Reconhecimento Facial</h3>
+                  <div id="bio-facial-preview" className="bio-preview">Sem captura</div>
+                  <button id="btn-capturar-facial" className="btn-primary">Processar Selfie</button>
+                </div>
+                <div className="glass-inner bio-card">
+                  <h3>Simulador Catraca iDFace</h3>
+                  <button id="btn-simular-catraca" className="btn-secondary">Tentar Acesso</button>
+                  <p id="catraca-log" className="catraca-log"></p>
+                </div>
               </div>
-              <div className="glass-inner">
-                <h3>Carrinho</h3>
-                <ul id="pdv-carrinho"></ul>
-                <p className="total">Total: R$ <span id="pdv-total">0,00</span></p>
-                <label>Meio de pagamento</label>
-                <select id="pdv-pagamento">
-                  <option value="DINHEIRO">Dinheiro</option>
-                  <option value="PIX">PIX</option>
-                  <option value="DEBITO">Cartão Débito</option>
-                  <option value="CREDITO">Cartão Crédito</option>
-                </select>
-                <button id="btn-fechar-venda" className="btn-primary">Fechar Venda</button>
-                <p id="pdv-log" className="catraca-log"></p>
+            </section>
+
+            <section id="view-pdv" className="view glass hidden">
+              <h2>PDV de Balcão — Recepção Expressa</h2>
+              <div className="pdv-grid">
+                <div className="glass-inner">
+                  <h3>Catálogo</h3>
+                  <div id="pdv-catalogo" className="catalog-grid"></div>
+                </div>
+                <div className="glass-inner">
+                  <h3>Carrinho</h3>
+                  <ul id="pdv-carrinho"></ul>
+                  <p className="total">Total: R$ <span id="pdv-total">0,00</span></p>
+                  <label>Meio de pagamento</label>
+                  <select id="pdv-pagamento">
+                    <option value="DINHEIRO">Dinheiro</option>
+                    <option value="PIX">PIX</option>
+                    <option value="DEBITO">Cartão Débito</option>
+                    <option value="CREDITO">Cartão Crédito</option>
+                  </select>
+                  <button id="btn-fechar-venda" className="btn-primary">Fechar Venda</button>
+                  <p id="pdv-log" className="catraca-log"></p>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* RECORRÊNCIA */}
-          <section id="view-recorrencia" className="view glass hidden">
-            <h2>Motor Financeiro Recorrente</h2>
-            <button id="btn-rodar-recorrencia" className="btn-primary">Processar Faturamento Mensal</button>
-            <div className="table-wrap">
-              <table>
-                <thead><tr><th>Aluno</th><th>Plano</th><th>Valor</th><th>Status</th><th>Última Cobrança</th></tr></thead>
-                <tbody id="recorrencia-tbody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* TREINO IMERSIVO */}
-          <section id="view-treino" className="view glass hidden">
-            <h2>Modo Em Treino</h2>
-            <div id="treino-container" className="treino-wrap"></div>
-          </section>
-
-          {/* AVALIAÇÃO ANTROPOMÉTRICA */}
-          <section id="view-avaliacao" className="view glass hidden">
-            <h2>Avaliação Antropométrica — Protocolo Pollock 3 Dobras</h2>
-            <div className="aval-grid">
-              <div className="glass-inner">
-                <label>Aluno</label>
-                <select id="aval-aluno"></select>
-                <label>Sexo</label>
-                <select id="aval-sexo"><option value="M">Masculino</option><option value="F">Feminino</option></select>
-                <label>Idade</label><input id="aval-idade" type="number" />
-                <label>Peso (kg)</label><input id="aval-peso" type="number" step="0.1" />
-                <label>Altura (cm)</label><input id="aval-altura" type="number" />
-                <label>Dobra Peitoral (mm)</label><input id="aval-peitoral" type="number" step="0.1" />
-                <label>Dobra Abdominal (mm)</label><input id="aval-abdominal" type="number" step="0.1" />
-                <label>Dobra Coxa (mm)</label><input id="aval-coxa" type="number" step="0.1" />
-                <button id="btn-calcular-aval" className="btn-primary">Calcular & Persistir</button>
+            <section id="view-recorrencia" className="view glass hidden">
+              <h2>Motor Financeiro Recorrente</h2>
+              <button id="btn-rodar-recorrencia" className="btn-primary">Processar Faturamento Mensal</button>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Aluno</th><th>Plano</th><th>Valor</th><th>Status</th><th>Última Cobrança</th></tr></thead>
+                  <tbody id="recorrencia-tbody"></tbody>
+                </table>
               </div>
-              <div className="glass-inner">
-                <h3>Resultado</h3>
-                <div id="aval-resultado" className="resultado-aval"></div>
-                <h3>Histórico</h3>
-                <ul id="aval-historico"></ul>
+            </section>
+
+            <section id="view-treino" className="view glass hidden">
+              <h2>Modo Em Treino</h2>
+              <div id="treino-container" className="treino-wrap"></div>
+            </section>
+
+            <section id="view-avaliacao" className="view glass hidden">
+              <h2>Avaliação Antropométrica — Protocolo Pollock 3 Dobras</h2>
+              <div className="aval-grid">
+                <div className="glass-inner">
+                  <label>Aluno</label>
+                  <select id="aval-aluno"></select>
+                  <label>Sexo</label>
+                  <select id="aval-sexo"><option value="M">Masculino</option><option value="F">Feminino</option></select>
+                  <label>Idade</label><input id="aval-idade" type="number" />
+                  <label>Peso (kg)</label><input id="aval-peso" type="number" step="0.1" />
+                  <label>Altura (cm)</label><input id="aval-altura" type="number" />
+                  <label>Dobra Peitoral (mm)</label><input id="aval-peitoral" type="number" step="0.1" />
+                  <label>Dobra Abdominal (mm)</label><input id="aval-abdominal" type="number" step="0.1" />
+                  <label>Dobra Coxa (mm)</label><input id="aval-coxa" type="number" step="0.1" />
+                  <button id="btn-calcular-aval" className="btn-primary">Calcular & Persistir</button>
+                </div>
+                <div className="glass-inner">
+                  <h3>Resultado</h3>
+                  <div id="aval-resultado" className="resultado-aval"></div>
+                  <h3>Histórico</h3>
+                  <ul id="aval-historico"></ul>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* GRADE DE AULAS */}
-          <section id="view-grade" className="view glass hidden">
-            <h2>Grade de Aulas Coletivas</h2>
-            <div id="grade-aulas" className="grade-grid"></div>
-          </section>
+            <section id="view-grade" className="view glass hidden">
+              <h2>Grade de Aulas Coletivas</h2>
+              <div id="grade-aulas" className="grade-grid"></div>
+            </section>
 
-          {/* EVOLUÇÃO */}
-          <section id="view-evolucao" className="view glass hidden">
-            <h2>Minha Evolução</h2>
-            <div id="evolucao-box" className="glass-inner"></div>
-          </section>
-        </main>
-      </section>
+            <section id="view-evolucao" className="view glass hidden">
+              <h2>Minha Evolução</h2>
+              <div id="evolucao-box" className="glass-inner"></div>
+            </section>
+          </main>
+        </section>
+      )}
 
       <div id="toast-container"></div>
 
@@ -207,6 +340,38 @@ function FitProApp() {
       <script dangerouslySetInnerHTML={{ __html: APP_JS }} />
     </>
   );
+}
+
+/* Busca papel + perfil + vínculo aluno/personal a partir do user_id */
+async function buildAppSession(userId: string): Promise<AppSession | null> {
+  const [{ data: profile }, { data: roles }] = await Promise.all([
+    supabase.from("profiles").select("nome,email").eq("id", userId).maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", userId),
+  ]);
+  if (!roles || roles.length === 0) return null;
+  // hierarquia: DONO > ADMIN > PERSONAL > ALUNO
+  const order: Role[] = ["DONO", "ADMIN", "PERSONAL", "ALUNO"];
+  const role =
+    order.find((r) => roles.some((x: { role: string }) => x.role === r)) ??
+    "ALUNO";
+
+  let aluno_id: string | null = null;
+  if (role === "ALUNO") {
+    const { data: a } = await supabase
+      .from("alunos")
+      .select("id")
+      .eq("profile_id", userId)
+      .maybeSingle();
+    aluno_id = a?.id ?? null;
+  }
+  return {
+    user_id: userId,
+    email: profile?.email ?? "",
+    nome: profile?.nome ?? "Usuário",
+    role,
+    aluno_id,
+    personal_id: role === "PERSONAL" ? userId : null,
+  };
 }
 
 /* =========================================================================
@@ -238,7 +403,8 @@ body::before{content:"";position:fixed;inset:0;background:
   box-shadow:0 8px 40px -10px rgba(124,58,237,.35)}
 .glass-inner{background:rgba(255,255,255,.04);border:1px solid var(--border);
   border-radius:14px;padding:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.auth-card{width:100%;max-width:420px;padding:36px;display:flex;flex-direction:column;gap:10px}
+.auth-card{width:100%;max-width:440px;padding:36px;display:flex;flex-direction:column;gap:10px}
+.demo-hint{margin-top:14px;padding:12px}
 .brand{font-size:30px;font-weight:800;letter-spacing:-.5px}
 .brand span{background:linear-gradient(90deg,var(--neon),var(--neon2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand-mini{font-size:22px;font-weight:800;padding:8px 0 20px}
@@ -250,9 +416,10 @@ input,select,textarea{width:100%;padding:11px 14px;border-radius:10px;
   font-size:14px;outline:none;transition:all .2s}
 input:focus,select:focus{border-color:var(--neon);box-shadow:0 0 0 3px rgba(255,43,214,.25)}
 button{cursor:pointer;border:none;font-family:inherit;font-weight:600;border-radius:10px;padding:11px 18px;font-size:14px;transition:transform .15s,box-shadow .2s}
+button:disabled{opacity:.55;cursor:not-allowed}
 .btn-primary{background:linear-gradient(90deg,var(--neon2),var(--neon));color:#fff;
   box-shadow:0 6px 24px -8px rgba(255,43,214,.6);margin-top:14px}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px -8px rgba(255,43,214,.8)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 30px -8px rgba(255,43,214,.8)}
 .btn-secondary{background:rgba(255,255,255,.1);color:var(--text);border:1px solid var(--border)}
 .btn-ghost{background:transparent;color:var(--muted);padding:6px 10px;font-size:12px}
 .btn-ghost:hover{color:var(--neon)}
@@ -341,128 +508,93 @@ tr:hover td{background:rgba(255,43,214,.05)}
 `;
 
 /* =========================================================================
- * APP_JS — toda a lógica vanilla orquestrada por initSystem()
+ * APP_JS — motor vanilla acoplado ao Lovable Cloud (Supabase)
+ * Toda a camada de dados usa window.__fp.sb (cliente Supabase).
+ * RLS no banco já filtra o que cada papel pode ver/escrever.
  * ========================================================================= */
 const APP_JS = `
 (function(){
 'use strict';
 
-/* ---------- API ASSÍNCRONA (mock acoplável a backend REST/SQL) ---------- */
-const STORAGE_KEY = 'fitpro_gym2_db_v1';
-const DB_SEED = {
-  alunos:[
-    {id:1,nome:'Lucas Silva',plano:'Black',valor_plano:189.90,status_financeiro:'ADIMPLENTE',hash_biometria_digital:null,vetor_facial:null,personal_id:3},
-    {id:2,nome:'Marina Costa',plano:'Standard',valor_plano:129.90,status_financeiro:'INADIMPLENTE',hash_biometria_digital:null,vetor_facial:null,personal_id:3},
-    {id:3,nome:'Rafael Lima',plano:'Black',valor_plano:189.90,status_financeiro:'ADIMPLENTE',hash_biometria_digital:null,vetor_facial:null,personal_id:3}
-  ],
-  produtos:[
-    {id:1,nome:'Whey Protein 900g',preco:159.90,estoque_atual:24},
-    {id:2,nome:'Creatina 300g',preco:89.90,estoque_atual:40},
-    {id:3,nome:'Garrafa Shaker',preco:29.90,estoque_atual:80},
-    {id:4,nome:'Toalha Premium',preco:39.90,estoque_atual:15},
-    {id:5,nome:'Barra Proteica',preco:9.90,estoque_atual:120}
-  ],
-  vendas:[],
-  recorrencias:[],
-  treinos:[
-    {aluno_id:1,exercicios:[
-      {nome:'Supino Reto',series:3,reps:'10-12',carga_sugerida:60},
-      {nome:'Remada Curvada',series:3,reps:'10-12',carga_sugerida:50},
-      {nome:'Agachamento Livre',series:4,reps:'8-10',carga_sugerida:80}
-    ]}
-  ],
-  historico_cargas_treino:[],
-  avaliacoes:[],
-  aulas:[
-    {id:1,nome:'Spinning',horario:'06:00',professor:'Carla',vagas:15},
-    {id:2,nome:'Funcional HIIT',horario:'07:30',professor:'Bruno',vagas:12},
-    {id:3,nome:'Pilates',horario:'09:00',professor:'Renata',vagas:10},
-    {id:4,nome:'Boxe',horario:'18:30',professor:'Marcos',vagas:20},
-    {id:5,nome:'Yoga',horario:'20:00',professor:'Ana',vagas:18}
-  ]
-};
-function loadDB(){
-  try{const d=localStorage.getItem(STORAGE_KEY);if(d)return JSON.parse(d);}catch(e){}
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(DB_SEED));return JSON.parse(JSON.stringify(DB_SEED));
-}
-function saveDB(db){localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}
-const API = {
-  async get(entity){await delay();return loadDB()[entity]||[];},
-  async update(entity,id,patch){await delay();const db=loadDB();const i=db[entity].findIndex(x=>x.id===id);if(i>=0){db[entity][i]={...db[entity][i],...patch};saveDB(db);return db[entity][i];}return null;},
-  async insert(entity,row){await delay();const db=loadDB();row.id=Date.now();db[entity].push(row);saveDB(db);return row;},
-  async find(entity,id){await delay();return (loadDB()[entity]||[]).find(x=>x.id===id);}
-};
-function delay(){return new Promise(r=>setTimeout(r,80+Math.random()*120));}
+let started=false, currentSession=null, carrinho=[];
 
-/* ---------- AUTH / RBAC ---------- */
-const USERS = {
-  dono:{nome:'Roberto Diretor',role:'DONO',pass:'123'},
-  admin:{nome:'Patrícia Recepção',role:'ADMIN',pass:'123'},
-  personal:{nome:'Diego Personal',role:'PERSONAL',pass:'123',id:3},
-  aluno:{nome:'Lucas Silva',role:'ALUNO',pass:'123',aluno_id:1}
-};
-const MENU_BY_ROLE = {
-  DONO:[['dashboard','Painel Estratégico'],['recorrencia','Recorrência']],
-  ADMIN:[['dashboard','Painel'],['alunos','Matrículas'],['biometria','Biometria'],['pdv','PDV Balcão'],['recorrencia','Recorrência']],
-  PERSONAL:[['alunos','Meus Alunos'],['avaliacao','Avaliação Física']],
+const MENU_BY_ROLE={
+  DONO:[['dashboard','Painel Estratégico'],['alunos','Matrículas'],['biometria','Biometria'],['pdv','PDV Balcão'],['recorrencia','Recorrência'],['avaliacao','Avaliação'],['grade','Grade de Aulas']],
+  ADMIN:[['dashboard','Painel'],['alunos','Matrículas'],['biometria','Biometria'],['pdv','PDV Balcão'],['recorrencia','Recorrência'],['grade','Grade de Aulas']],
+  PERSONAL:[['alunos','Meus Alunos'],['avaliacao','Avaliação Física'],['grade','Grade de Aulas']],
   ALUNO:[['treino','Modo Em Treino'],['grade','Grade de Aulas'],['evolucao','Minha Evolução']]
 };
-let session=null;
 
-/* ---------- SANITIZAÇÃO (OWASP) ---------- */
-function safeSet(el,val){if(el)el.textContent=(val==null?'':String(val));}
 function $(id){return document.getElementById(id);}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));const v=$('view-'+name);if(v)v.classList.remove('hidden');document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===name));renderView(name);}
-function toast(msg,kind){const c=$('toast-container');const t=document.createElement('div');t.className='toast '+(kind||'');safeSet(t,msg);c.appendChild(t);setTimeout(()=>t.remove(),3800);}
+function safeSet(el,val){if(el)el.textContent=(val==null?'':String(val));}
 function fmtBRL(n){return Number(n||0).toFixed(2).replace('.',',');}
+function toast(msg,kind){const c=$('toast-container');if(!c)return;const t=document.createElement('div');t.className='toast '+(kind||'');safeSet(t,msg);c.appendChild(t);setTimeout(()=>t.remove(),3800);}
+function sb(){return window.__fp && window.__fp.sb;}
 
-/* ---------- LOGIN ---------- */
-function bindLogin(){
-  $('btn-login').addEventListener('click',()=>{
-    const u=$('login-user').value.trim().toLowerCase();
-    const p=$('login-pass').value;
-    const err=$('login-error');err.classList.add('hidden');
-    const user=USERS[u];
-    if(!user||user.pass!==p){err.classList.remove('hidden');safeSet(err,'Credenciais inválidas.');return;}
-    session={key:u,...user};
-    buildShell();showScreen('screen-app');
-    const first=MENU_BY_ROLE[session.role][0][0];showView(first);
-    toast('Bem-vindo, '+session.nome,'success');
-  });
-}
-function buildShell(){
-  safeSet($('user-name'),session.nome);
-  safeSet($('user-role'),session.role);
-  safeSet($('user-avatar'),session.nome.charAt(0));
-  const nav=$('nav-menu');nav.textContent='';
-  MENU_BY_ROLE[session.role].forEach(([k,label])=>{
-    const b=document.createElement('div');b.className='nav-item';b.dataset.view=k;safeSet(b,label);
-    b.addEventListener('click',()=>showView(k));nav.appendChild(b);
-  });
-  $('btn-logout').onclick=()=>{session=null;showScreen('screen-login');$('login-user').value='';$('login-pass').value='';};
-}
+/* ---------- API SUPABASE ---------- */
+const API={
+  async get(table,opts){
+    const q=sb().from(table).select('*');
+    const r=await q;
+    if(r.error){console.warn('[API.get]',table,r.error);return[];}
+    return r.data||[];
+  },
+  async find(table,id){
+    const r=await sb().from(table).select('*').eq('id',id).maybeSingle();
+    if(r.error){console.warn('[API.find]',table,r.error);return null;}
+    return r.data;
+  },
+  async insert(table,row){
+    const r=await sb().from(table).insert(row).select().single();
+    if(r.error){console.warn('[API.insert]',table,r.error);toast('Erro: '+r.error.message,'error');return null;}
+    return r.data;
+  },
+  async update(table,id,patch){
+    const r=await sb().from(table).update(patch).eq('id',id).select().single();
+    if(r.error){console.warn('[API.update]',table,r.error);toast('Erro: '+r.error.message,'error');return null;}
+    return r.data;
+  }
+};
 
-/* ---------- RENDER ROUTER ---------- */
+/* ---------- VIEW ROUTER ---------- */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+  const v=$('view-'+name);if(v)v.classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===name));
+  renderView(name);
+}
 function renderView(name){
   ({dashboard:renderDashboard,alunos:renderAlunos,biometria:renderBiometria,pdv:renderPDV,
     recorrencia:renderRecorrencia,treino:renderTreino,avaliacao:renderAvaliacao,
     grade:renderGrade,evolucao:renderEvolucao})[name]?.();
 }
 
+/* ---------- SHELL ---------- */
+function buildShell(){
+  safeSet($('user-name'),currentSession.nome);
+  safeSet($('user-role'),currentSession.role);
+  safeSet($('user-avatar'),(currentSession.nome||'?').charAt(0));
+  const nav=$('nav-menu');if(!nav)return;
+  nav.textContent='';
+  (MENU_BY_ROLE[currentSession.role]||[]).forEach(([k,label])=>{
+    const b=document.createElement('div');b.className='nav-item';b.dataset.view=k;safeSet(b,label);
+    b.addEventListener('click',()=>showView(k));nav.appendChild(b);
+  });
+}
+
 /* ---------- DASHBOARD ---------- */
 async function renderDashboard(){
   const [alunos,vendas,rec]=await Promise.all([API.get('alunos'),API.get('vendas'),API.get('recorrencias')]);
   const grid=$('dashboard-cards');grid.textContent='';
-  const totalVendas=vendas.reduce((s,v)=>s+v.total,0);
-  const totalRec=rec.filter(r=>r.status==='PAGO').reduce((s,r)=>s+r.valor,0);
+  const totalVendas=vendas.reduce((s,v)=>s+Number(v.total||0),0);
+  const totalRec=rec.filter(r=>r.status==='PAGO').reduce((s,r)=>s+Number(r.valor||0),0);
   const kpis=[['Alunos Ativos',alunos.filter(a=>a.status_financeiro==='ADIMPLENTE').length],
     ['Inadimplentes',alunos.filter(a=>a.status_financeiro==='INADIMPLENTE').length],
     ['Caixa (PDV)','R$ '+fmtBRL(totalVendas)],['Recorrência','R$ '+fmtBRL(totalRec)]];
   kpis.forEach(([t,v])=>{const c=document.createElement('div');c.className='card-kpi';
     const h=document.createElement('h4');safeSet(h,t);const p=document.createElement('p');safeSet(p,v);
     c.append(h,p);grid.appendChild(c);});
-  if(session.role==='DONO'){
+  if(currentSession.role==='DONO'){
     $('dashboard-financeiro').classList.remove('hidden');
     const m=$('finance-metrics');m.textContent='';
     [['Faturamento Total','R$ '+fmtBRL(totalVendas+totalRec)],
@@ -470,13 +602,12 @@ async function renderDashboard(){
      ['Cobranças Recorrentes',rec.length]].forEach(([k,v])=>{
       const d=document.createElement('div');const s=document.createElement('span');safeSet(s,k);
       const st=document.createElement('strong');safeSet(st,v);d.append(s,st);m.appendChild(d);});
-  }else $('dashboard-financeiro').classList.add('hidden');
+  } else { $('dashboard-financeiro').classList.add('hidden'); }
 }
 
 /* ---------- ALUNOS ---------- */
 async function renderAlunos(){
-  let alunos=await API.get('alunos');
-  if(session.role==='PERSONAL')alunos=alunos.filter(a=>a.personal_id===session.id);
+  const alunos=await API.get('alunos');
   const tb=$('alunos-tbody');tb.textContent='';
   alunos.forEach(a=>{
     const tr=document.createElement('tr');
@@ -487,18 +618,25 @@ async function renderAlunos(){
     st.appendChild(bd);tr.appendChild(st);
     tr.appendChild(td(a.hash_biometria_digital?'✓ Cadastrada':'—'));
     const ac=document.createElement('td');
-    if(session.role==='ADMIN'){
+    if(currentSession.role==='ADMIN'||currentSession.role==='DONO'){
       const b=document.createElement('button');b.className='btn-ghost';safeSet(b,'Alternar Status');
-      b.onclick=async()=>{await API.update('alunos',a.id,{status_financeiro:a.status_financeiro==='ADIMPLENTE'?'INADIMPLENTE':'ADIMPLENTE'});renderAlunos();toast('Status atualizado','success');};
+      b.onclick=async()=>{
+        await API.update('alunos',a.id,{status_financeiro:a.status_financeiro==='ADIMPLENTE'?'INADIMPLENTE':'ADIMPLENTE'});
+        renderAlunos();toast('Status atualizado','success');
+      };
       ac.appendChild(b);
     }
     tr.appendChild(ac);tb.appendChild(tr);
   });
-  $('btn-novo-aluno').onclick=async()=>{
-    const nome=prompt('Nome do aluno:');if(!nome)return;
-    await API.insert('alunos',{nome,plano:'Standard',valor_plano:129.90,status_financeiro:'ADIMPLENTE',hash_biometria_digital:null,vetor_facial:null,personal_id:3});
-    renderAlunos();toast('Matrícula criada','success');
-  };
+  const btn=$('btn-novo-aluno');
+  if(btn){
+    btn.style.display=(currentSession.role==='ADMIN'||currentSession.role==='DONO')?'':'none';
+    btn.onclick=async()=>{
+      const nome=prompt('Nome do aluno:');if(!nome)return;
+      const novo=await API.insert('alunos',{nome,plano:'Standard',valor_plano:129.90,status_financeiro:'ADIMPLENTE'});
+      if(novo){renderAlunos();toast('Matrícula criada','success');}
+    };
+  }
 }
 
 /* ---------- BIOMETRIA ---------- */
@@ -506,35 +644,30 @@ async function renderBiometria(){
   const alunos=await API.get('alunos');
   const sel=$('bio-aluno-select');sel.textContent='';
   alunos.forEach(a=>{const o=document.createElement('option');o.value=a.id;safeSet(o,a.nome);sel.appendChild(o);});
-  const refreshStatus=async()=>{const a=await API.find('alunos',Number(sel.value));safeSet($('bio-status'),a?.status_financeiro||'-');};
-  sel.onchange=refreshStatus;await refreshStatus();
+  const refreshStatus=async()=>{const a=await API.find('alunos',sel.value);safeSet($('bio-status'),a?.status_financeiro||'-');};
+  sel.onchange=refreshStatus;if(alunos.length)await refreshStatus();
   $('btn-capturar-digital').onclick=async()=>{
-    const id=Number(sel.value);const hash=capturarTemplateDigital();
-    await API.update('alunos',id,{hash_biometria_digital:hash});
-    const p=$('bio-digital-preview');p.className='bio-preview ok';safeSet(p,'Template salvo: '+hash.slice(0,32)+'...');
-    toast('Digital cadastrada','success');
+    if(!sel.value)return;const hash=capturarTemplateDigital();
+    const r=await API.update('alunos',sel.value,{hash_biometria_digital:hash});
+    if(r){const p=$('bio-digital-preview');p.className='bio-preview ok';safeSet(p,'Template salvo: '+hash.slice(0,32)+'...');toast('Digital cadastrada','success');}
   };
   $('btn-capturar-facial').onclick=async()=>{
-    const id=Number(sel.value);const vetor=processarSelfieFacial();
-    await API.update('alunos',id,{vetor_facial:vetor});
-    const p=$('bio-facial-preview');p.className='bio-preview ok';safeSet(p,'Vetor 128D capturado ['+vetor.slice(0,3).map(n=>n.toFixed(2)).join(', ')+'...]');
-    toast('Facial cadastrada','success');
+    if(!sel.value)return;const vetor=processarSelfieFacial();
+    const r=await API.update('alunos',sel.value,{vetor_facial:JSON.stringify(vetor)});
+    if(r){const p=$('bio-facial-preview');p.className='bio-preview ok';safeSet(p,'Vetor 128D capturado ['+vetor.slice(0,3).map(n=>n.toFixed(2)).join(', ')+'...]');toast('Facial cadastrada','success');}
   };
   $('btn-simular-catraca').onclick=async()=>{
-    const a=await API.find('alunos',Number(sel.value));
+    if(!sel.value)return;const a=await API.find('alunos',sel.value);
     const r=validarAcessoCatraca(a);const log=$('catraca-log');
     safeSet(log,'['+new Date().toLocaleTimeString()+'] '+r.codigo+' — '+r.mensagem);
     toast(r.mensagem,r.permitido?'success':'error');
   };
 }
-// Função simulando captura via leitor USB-Persona — gera minúcias criptografadas
 function capturarTemplateDigital(){
   const bytes=new Uint8Array(64);for(let i=0;i<64;i++)bytes[i]=Math.floor(Math.random()*256);
   return 'BIO-DIG::'+Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-// Converte selfie (webcam/upload) em vetor numérico de 128 dimensões (Hikvision/iDFace)
 function processarSelfieFacial(){const v=[];for(let i=0;i<128;i++)v.push((Math.random()*2-1));return v;}
-// Regra de portaria — bloqueia destravamento do solenoide se INADIMPLENTE
 function validarAcessoCatraca(aluno){
   if(!aluno)return{permitido:false,codigo:'ERR_404',mensagem:'Aluno não localizado'};
   if(aluno.status_financeiro==='INADIMPLENTE')return{permitido:false,codigo:'BLOQ_FIN_402',mensagem:'Acesso negado: aluno inadimplente — solenoide travado'};
@@ -543,7 +676,6 @@ function validarAcessoCatraca(aluno){
 }
 
 /* ---------- PDV ---------- */
-let carrinho=[];
 async function renderPDV(){
   carrinho=[];const prods=await API.get('produtos');
   const cat=$('pdv-catalogo');cat.textContent='';
@@ -552,13 +684,14 @@ async function renderPDV(){
     const h=document.createElement('h5');safeSet(h,p.nome);
     const e=document.createElement('p');safeSet(e,'Estoque: '+p.estoque_atual);
     const v=document.createElement('strong');safeSet(v,'R$ '+fmtBRL(p.preco));
-    c.append(h,e,v);c.onclick=()=>{if(p.estoque_atual<=0){toast('Sem estoque','error');return;}addCarrinho(p);};
+    c.append(h,e,v);
+    c.onclick=()=>{if(p.estoque_atual<=0){toast('Sem estoque','error');return;}addCarrinho(p);};
     cat.appendChild(c);
   });
   updateCarrinho();
   $('btn-fechar-venda').onclick=fecharVenda;
 }
-function addCarrinho(p){const ex=carrinho.find(x=>x.id===p.id);if(ex)ex.qtd++;else carrinho.push({...p,qtd:1});updateCarrinho();}
+function addCarrinho(p){const ex=carrinho.find(x=>x.id===p.id);if(ex)ex.qtd++;else carrinho.push({id:p.id,nome:p.nome,preco:Number(p.preco),qtd:1});updateCarrinho();}
 function updateCarrinho(){
   const ul=$('pdv-carrinho');ul.textContent='';let total=0;
   carrinho.forEach(item=>{
@@ -574,12 +707,11 @@ async function fecharVenda(){
   const pag=$('pdv-pagamento').value;
   const total=carrinho.reduce((s,i)=>s+i.preco*i.qtd,0);
   for(const item of carrinho){
-    const atual=(await API.find('produtos',item.id)).estoque_atual;
+    const atual=(await API.find('produtos',item.id))?.estoque_atual||0;
     await API.update('produtos',item.id,{estoque_atual:atual-item.qtd});
   }
-  await API.insert('vendas',{itens:carrinho,total,meio_pagamento:pag,data:new Date().toISOString()});
-  safeSet($('pdv-log'),'Venda fechada • R$ '+fmtBRL(total)+' • '+pag);
-  toast('Venda registrada com sucesso','success');renderPDV();
+  const v=await API.insert('vendas',{items:carrinho.map(i=>({id:i.id,nome:i.nome,preco:i.preco,qtd:i.qtd,meio_pagamento:pag})),total});
+  if(v){safeSet($('pdv-log'),'Venda fechada • R$ '+fmtBRL(total)+' • '+pag);toast('Venda registrada com sucesso','success');renderPDV();}
 }
 
 /* ---------- RECORRÊNCIA ---------- */
@@ -587,13 +719,15 @@ async function renderRecorrencia(){
   const alunos=await API.get('alunos');const rec=await API.get('recorrencias');
   const tb=$('recorrencia-tbody');tb.textContent='';
   alunos.forEach(a=>{
-    const last=rec.filter(r=>r.aluno_id===a.id).sort((x,y)=>y.data.localeCompare(x.data))[0];
+    const list=rec.filter(r=>r.aluno_id===a.id).sort((x,y)=>(y.created_at||'').localeCompare(x.created_at||''));
+    const last=list[0];
     const tr=document.createElement('tr');const td=v=>{const c=document.createElement('td');safeSet(c,v);return c;};
     tr.append(td(a.nome),td(a.plano),td('R$ '+fmtBRL(a.valor_plano)));
     const st=document.createElement('td');const bd=document.createElement('span');
-    const sts=last?last.status:'PENDENTE';bd.className='badge '+(sts==='PAGO'?'ok':sts==='FALHA'?'bad':'warn');safeSet(bd,sts);
+    const sts=last?last.status:'PENDENTE';
+    bd.className='badge '+(sts==='PAGO'?'ok':(sts==='ATRASADO'||sts==='CANCELADO')?'bad':'warn');safeSet(bd,sts);
     st.appendChild(bd);tr.appendChild(st);
-    tr.appendChild(td(last?new Date(last.data).toLocaleDateString():'—'));
+    tr.appendChild(td(last?new Date(last.created_at).toLocaleDateString():'—'));
     tb.appendChild(tr);
   });
   $('btn-rodar-recorrencia').onclick=async()=>{
@@ -602,21 +736,21 @@ async function renderRecorrencia(){
     toast('Faturamento mensal processado','success');renderRecorrencia();
   };
 }
-// Simula faturamento mensal sem bloqueio de limite global (capture-only)
 async function faturarRecorrente(aluno){
   const ok=Math.random()>0.1;
-  await API.insert('recorrencias',{aluno_id:aluno.id,valor:aluno.valor_plano,status:ok?'PAGO':'FALHA',data:new Date().toISOString(),gateway:'STRIPE-SIM',captura:'NAO-BLOQUEIA-LIMITE'});
+  await API.insert('recorrencias',{aluno_id:aluno.id,valor:aluno.valor_plano,status:ok?'PAGO':'ATRASADO'});
   if(!ok)await API.update('alunos',aluno.id,{status_financeiro:'INADIMPLENTE'});
 }
 
 /* ---------- TREINO IMERSIVO ---------- */
 async function renderTreino(){
   const c=$('treino-container');c.textContent='';
-  const aluno_id=session.aluno_id||1;
+  const aluno_id=currentSession.aluno_id;
+  if(!aluno_id){const p=document.createElement('p');safeSet(p,'Sem aluno vinculado a esta conta.');c.appendChild(p);return;}
   const treinos=await API.get('treinos');
   const treino=treinos.find(t=>t.aluno_id===aluno_id);
   if(!treino){const p=document.createElement('p');safeSet(p,'Sem treino atribuído.');c.appendChild(p);return;}
-  treino.exercicios.forEach((ex,idx)=>{
+  (treino.exercicios||[]).forEach((ex,idx)=>{
     const box=document.createElement('div');box.className='exercicio'+(idx>0?' locked':'');box.dataset.idx=idx;
     const h=document.createElement('h3');safeSet(h,(idx+1)+'. '+ex.nome);
     const m=document.createElement('p');m.className='meta';safeSet(m,ex.series+' séries × '+ex.reps+' reps  •  carga sugerida: '+ex.carga_sugerida+'kg');
@@ -630,7 +764,7 @@ async function renderTreino(){
       const bt=document.createElement('button');bt.className='btn-primary';safeSet(bt,'OK');
       bt.onclick=async()=>{
         if(!rp.value){toast('Informe as repetições','error');return;}
-        await API.insert('historico_cargas_treino',{aluno_id,exercicio:ex.nome,serie:s,carga:Number(kg.value),reps:Number(rp.value),data:new Date().toISOString()});
+        await API.insert('historico_cargas_treino',{aluno_id,exercicio_nome:ex.nome+' (série '+s+')',carga:Number(kg.value),reps_realizadas:String(rp.value)});
         bt.disabled=true;safeSet(bt,'✓');
         dispararDescanso(60,()=>{
           const allDone=Array.from(list.querySelectorAll('button')).every(b=>b.disabled);
@@ -652,24 +786,22 @@ function dispararDescanso(seg,onEnd){
   sk.onclick=()=>{clearInterval(intv);ov.remove();onEnd&&onEnd();};
 }
 
-/* ---------- AVALIAÇÃO ANTROPOMÉTRICA (POLLOCK 3 DOBRAS) ---------- */
+/* ---------- AVALIAÇÃO ANTROPOMÉTRICA ---------- */
 async function renderAvaliacao(){
-  let alunos=await API.get('alunos');
-  if(session.role==='PERSONAL')alunos=alunos.filter(a=>a.personal_id===session.id);
+  const alunos=await API.get('alunos');
   const sel=$('aval-aluno');sel.textContent='';
   alunos.forEach(a=>{const o=document.createElement('option');o.value=a.id;safeSet(o,a.nome);sel.appendChild(o);});
   $('btn-calcular-aval').onclick=async()=>{
-    const dados={aluno_id:Number(sel.value),sexo:$('aval-sexo').value,idade:Number($('aval-idade').value),
+    const dados={aluno_id:sel.value,sexo:$('aval-sexo').value,idade:Number($('aval-idade').value),
       peso:Number($('aval-peso').value),altura:Number($('aval-altura').value),
       peitoral:Number($('aval-peitoral').value),abdominal:Number($('aval-abdominal').value),coxa:Number($('aval-coxa').value)};
     if(!dados.idade||!dados.peso||!dados.peitoral){toast('Preencha todos os campos','error');return;}
     const r=calcularPollock3(dados);
-    await API.insert('avaliacoes',{...dados,...r,data:new Date().toISOString()});
-    renderResultadoAval(r,dados);renderHistAval();toast('Avaliação persistida','success');
+    const ok=await API.insert('avaliacoes',{aluno_id:dados.aluno_id,dados:{...dados,...r},avaliador_id:currentSession.user_id});
+    if(ok){renderResultadoAval(r,dados);renderHistAval();toast('Avaliação persistida','success');}
   };
-  sel.onchange=renderHistAval;renderHistAval();
+  sel.onchange=renderHistAval;if(alunos.length)renderHistAval();
 }
-// Protocolo Pollock 3 dobras — fórmula científica
 function calcularPollock3(d){
   const sum=d.peitoral+d.abdominal+d.coxa;let densidade;
   if(d.sexo==='M')densidade=1.10938-(0.0008267*sum)+(0.0000016*sum*sum)-(0.0002574*d.idade);
@@ -681,18 +813,19 @@ function calcularPollock3(d){
   return{densidade_corporal:Number(densidade.toFixed(4)),percentual_gordura:Number(percentual_gordura.toFixed(2)),
     massa_gorda:Number(massa_gorda.toFixed(2)),massa_magra:Number(massa_magra.toFixed(2)),imc:Number(imc.toFixed(2))};
 }
-function renderResultadoAval(r,d){
+function renderResultadoAval(r){
   const c=$('aval-resultado');c.textContent='';
   const blocks=[['% Gordura Corporal',r.percentual_gordura+' %'],['Densidade Corporal',r.densidade_corporal+' g/cm³'],
     ['Massa Gorda',r.massa_gorda+' kg'],['Massa Magra',r.massa_magra+' kg'],['IMC',r.imc]];
   blocks.forEach(([k,v])=>{const p=document.createElement('p');const s=document.createElement('strong');safeSet(s,v);
-    const t=document.createTextNode(' — ');p.append(s,t,document.createTextNode(k));c.appendChild(p);});
+    p.append(s,document.createTextNode(' — '+k));c.appendChild(p);});
 }
 async function renderHistAval(){
-  const sel=$('aval-aluno');const id=Number(sel.value);
-  const avs=(await API.get('avaliacoes')).filter(a=>a.aluno_id===id).sort((a,b)=>b.data.localeCompare(a.data));
+  const sel=$('aval-aluno');const id=sel.value;if(!id)return;
+  const avs=(await API.get('avaliacoes')).filter(a=>a.aluno_id===id).sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
   const ul=$('aval-historico');ul.textContent='';
-  avs.forEach(a=>{const li=document.createElement('li');safeSet(li,new Date(a.data).toLocaleDateString()+' • '+a.percentual_gordura+'% gordura • '+a.massa_magra+'kg magra');ul.appendChild(li);});
+  avs.forEach(a=>{const d=a.dados||{};const li=document.createElement('li');
+    safeSet(li,new Date(a.created_at).toLocaleDateString()+' • '+d.percentual_gordura+'% gordura • '+d.massa_magra+'kg magra');ul.appendChild(li);});
 }
 
 /* ---------- GRADE DE AULAS ---------- */
@@ -711,26 +844,29 @@ async function renderGrade(){
 
 /* ---------- EVOLUÇÃO ---------- */
 async function renderEvolucao(){
-  const id=session.aluno_id||1;
+  const id=currentSession.aluno_id;
+  if(!id){const c=$('evolucao-box');c.textContent='';const p=document.createElement('p');safeSet(p,'Sem aluno vinculado.');c.appendChild(p);return;}
   const hist=(await API.get('historico_cargas_treino')).filter(h=>h.aluno_id===id);
   const avs=(await API.get('avaliacoes')).filter(a=>a.aluno_id===id);
   const c=$('evolucao-box');c.textContent='';
   const h1=document.createElement('h3');safeSet(h1,'Séries Registradas: '+hist.length);
   const h2=document.createElement('h3');safeSet(h2,'Avaliações: '+avs.length);
   c.append(h1,h2);
-  hist.slice(-10).reverse().forEach(h=>{const p=document.createElement('p');safeSet(p,new Date(h.data).toLocaleString()+' • '+h.exercicio+' • Série '+h.serie+' • '+h.carga+'kg × '+h.reps+' reps');c.appendChild(p);});
+  hist.slice(-10).reverse().forEach(h=>{const p=document.createElement('p');
+    safeSet(p,new Date(h.created_at).toLocaleString()+' • '+h.exercicio_nome+' • '+h.carga+'kg × '+h.reps_realizadas+' reps');c.appendChild(p);});
 }
 
-/* ---------- INIT MÃE ---------- */
-function initSystem(){
-  loadDB();
-  bindLogin();
-  showScreen('screen-login');
-  console.info('[FitPro GYM2] initSystem() OK');
-}
-window.initSystem=initSystem;
-// Auto-bootstrap em ambiente SPA (DOMContentLoaded ou imediato)
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSystem);
-else initSystem();
+/* ---------- INIT / DESTROY ---------- */
+window.__startFitProApp=function(session){
+  currentSession=session;started=true;
+  buildShell();
+  const first=(MENU_BY_ROLE[currentSession.role]||[['dashboard','']])[0][0];
+  showView(first);
+  toast('Bem-vindo, '+session.nome,'success');
+};
+window.__stopFitProApp=function(){
+  started=false;currentSession=null;carrinho=[];
+};
+console.info('[FitPro GYM2] motor pronto (Lovable Cloud).');
 })();
 `;
