@@ -14,8 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      academias: {
+        Row: {
+          cnpj: string | null
+          created_at: string
+          fuso_horario: string
+          id: string
+          logo_url: string | null
+          nome: string
+          plano_saas: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string
+          fuso_horario?: string
+          id?: string
+          logo_url?: string | null
+          nome: string
+          plano_saas?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string
+          fuso_horario?: string
+          id?: string
+          logo_url?: string | null
+          nome?: string
+          plano_saas?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alunos: {
         Row: {
+          academia_id: string
           created_at: string
           hash_biometria_digital: string | null
           id: string
@@ -29,6 +66,7 @@ export type Database = {
           vetor_facial: string | null
         }
         Insert: {
+          academia_id: string
           created_at?: string
           hash_biometria_digital?: string | null
           id?: string
@@ -42,6 +80,7 @@ export type Database = {
           vetor_facial?: string | null
         }
         Update: {
+          academia_id?: string
           created_at?: string
           hash_biometria_digital?: string | null
           id?: string
@@ -55,6 +94,13 @@ export type Database = {
           vetor_facial?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "alunos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "alunos_personal_id_fkey"
             columns: ["personal_id"]
@@ -73,6 +119,7 @@ export type Database = {
       }
       aulas: {
         Row: {
+          academia_id: string
           created_at: string
           horario: string
           id: string
@@ -82,6 +129,7 @@ export type Database = {
           vagas: number
         }
         Insert: {
+          academia_id: string
           created_at?: string
           horario: string
           id?: string
@@ -91,6 +139,7 @@ export type Database = {
           vagas?: number
         }
         Update: {
+          academia_id?: string
           created_at?: string
           horario?: string
           id?: string
@@ -99,10 +148,19 @@ export type Database = {
           updated_at?: string
           vagas?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "aulas_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       avaliacoes: {
         Row: {
+          academia_id: string
           aluno_id: string
           avaliador_id: string | null
           created_at: string
@@ -110,6 +168,7 @@ export type Database = {
           id: string
         }
         Insert: {
+          academia_id: string
           aluno_id: string
           avaliador_id?: string | null
           created_at?: string
@@ -117,6 +176,7 @@ export type Database = {
           id?: string
         }
         Update: {
+          academia_id?: string
           aluno_id?: string
           avaliador_id?: string | null
           created_at?: string
@@ -124,6 +184,13 @@ export type Database = {
           id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "avaliacoes_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "avaliacoes_aluno_id_fkey"
             columns: ["aluno_id"]
@@ -142,6 +209,7 @@ export type Database = {
       }
       historico_cargas_treino: {
         Row: {
+          academia_id: string
           aluno_id: string
           carga: number
           created_at: string
@@ -150,6 +218,7 @@ export type Database = {
           reps_realizadas: string | null
         }
         Insert: {
+          academia_id: string
           aluno_id: string
           carga: number
           created_at?: string
@@ -158,6 +227,7 @@ export type Database = {
           reps_realizadas?: string | null
         }
         Update: {
+          academia_id?: string
           aluno_id?: string
           carga?: number
           created_at?: string
@@ -166,6 +236,13 @@ export type Database = {
           reps_realizadas?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "historico_cargas_treino_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "historico_cargas_treino_aluno_id_fkey"
             columns: ["aluno_id"]
@@ -177,6 +254,7 @@ export type Database = {
       }
       produtos: {
         Row: {
+          academia_id: string
           created_at: string
           estoque_atual: number
           id: string
@@ -185,6 +263,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          academia_id: string
           created_at?: string
           estoque_atual?: number
           id?: string
@@ -193,6 +272,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          academia_id?: string
           created_at?: string
           estoque_atual?: number
           id?: string
@@ -200,10 +280,19 @@ export type Database = {
           preco?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "produtos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
+          academia_atual_id: string | null
           created_at: string
           email: string | null
           id: string
@@ -211,6 +300,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          academia_atual_id?: string | null
           created_at?: string
           email?: string | null
           id: string
@@ -218,16 +308,26 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          academia_atual_id?: string | null
           created_at?: string
           email?: string | null
           id?: string
           nome?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_academia_atual_id_fkey"
+            columns: ["academia_atual_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recorrencias: {
         Row: {
+          academia_id: string
           aluno_id: string
           created_at: string
           id: string
@@ -237,6 +337,7 @@ export type Database = {
           vencimento: string | null
         }
         Insert: {
+          academia_id: string
           aluno_id: string
           created_at?: string
           id?: string
@@ -246,6 +347,7 @@ export type Database = {
           vencimento?: string | null
         }
         Update: {
+          academia_id?: string
           aluno_id?: string
           created_at?: string
           id?: string
@@ -255,6 +357,13 @@ export type Database = {
           vencimento?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "recorrencias_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "recorrencias_aluno_id_fkey"
             columns: ["aluno_id"]
@@ -266,6 +375,7 @@ export type Database = {
       }
       treinos: {
         Row: {
+          academia_id: string
           aluno_id: string
           created_at: string
           created_by: string | null
@@ -274,6 +384,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          academia_id: string
           aluno_id: string
           created_at?: string
           created_by?: string | null
@@ -282,6 +393,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          academia_id?: string
           aluno_id?: string
           created_at?: string
           created_by?: string | null
@@ -290,6 +402,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "treinos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "treinos_aluno_id_fkey"
             columns: ["aluno_id"]
@@ -308,27 +427,39 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          academia_id: string
           created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          academia_id: string
           created_at?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          academia_id?: string
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendas: {
         Row: {
+          academia_id: string
           aluno_id: string | null
           created_at: string
           created_by: string | null
@@ -337,6 +468,7 @@ export type Database = {
           total: number
         }
         Insert: {
+          academia_id: string
           aluno_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -345,6 +477,7 @@ export type Database = {
           total?: number
         }
         Update: {
+          academia_id?: string
           aluno_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -353,6 +486,13 @@ export type Database = {
           total?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "vendas_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vendas_aluno_id_fkey"
             columns: ["aluno_id"]
@@ -374,6 +514,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_academia_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -381,7 +522,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role_na_academia: {
+        Args: {
+          _academia_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_staff_na_academia: {
+        Args: { _academia_id: string; _user_id: string }
+        Returns: boolean
+      }
+      pode_acessar_academia: {
+        Args: { _academia_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "DONO" | "ADMIN" | "PERSONAL" | "ALUNO"

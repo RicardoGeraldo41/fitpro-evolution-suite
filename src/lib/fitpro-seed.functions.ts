@@ -46,6 +46,8 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
       },
     ];
 
+    const ACADEMIA_DEMO_ID = "00000000-0000-0000-0000-00000000fa01";
+
     const created: Record<string, string> = {};
     for (const u of demoUsers) {
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -58,22 +60,21 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
       const uid = data.user!.id;
       created[u.role] = uid;
 
-      // O trigger handle_new_user já cria profile; só garantimos o nome certo
       await supabaseAdmin
         .from("profiles")
-        .upsert({ id: uid, nome: u.nome, email: u.email });
+        .upsert({ id: uid, nome: u.nome, email: u.email, academia_atual_id: ACADEMIA_DEMO_ID });
 
       await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: uid, role: u.role });
+        .insert({ user_id: uid, role: u.role, academia_id: ACADEMIA_DEMO_ID });
     }
 
-    // Aluno Lucas (vinculado à conta aluno@) + Marina e Rafael (sem login)
     const personalId = created.PERSONAL;
     const alunoProfileId = created.ALUNO;
 
     await supabaseAdmin.from("alunos").insert([
       {
+        academia_id: ACADEMIA_DEMO_ID,
         profile_id: alunoProfileId,
         nome: "Lucas Silva",
         plano: "Black",
@@ -82,6 +83,7 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
         personal_id: personalId,
       },
       {
+        academia_id: ACADEMIA_DEMO_ID,
         nome: "Marina Costa",
         plano: "Standard",
         valor_plano: 129.9,
@@ -89,6 +91,7 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
         personal_id: personalId,
       },
       {
+        academia_id: ACADEMIA_DEMO_ID,
         nome: "Rafael Lima",
         plano: "Black",
         valor_plano: 189.9,
@@ -97,7 +100,6 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
       },
     ]);
 
-    // Treino padrão para Lucas
     const { data: lucas } = await supabaseAdmin
       .from("alunos")
       .select("id")
@@ -106,6 +108,7 @@ export const seedFitProDemoUsers = createServerFn({ method: "POST" }).handler(
 
     if (lucas) {
       await supabaseAdmin.from("treinos").insert({
+        academia_id: ACADEMIA_DEMO_ID,
         aluno_id: lucas.id,
         exercicios: [
           { nome: "Supino Reto", series: 3, reps: "10-12", carga_sugerida: 60 },

@@ -32,6 +32,8 @@ type AppSession = {
   role: Role;
   aluno_id: string | null;
   personal_id: string | null;
+  academia_id: string;
+  academia_nome: string;
 };
 
 declare global {
@@ -345,15 +347,23 @@ function FitProApp() {
 /* Busca papel + perfil + vínculo aluno/personal a partir do user_id */
 async function buildAppSession(userId: string): Promise<AppSession | null> {
   const [{ data: profile }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("nome,email").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
+    supabase.from("profiles").select("nome,email,academia_atual_id").eq("id", userId).maybeSingle(),
+    supabase.from("user_roles").select("role,academia_id").eq("user_id", userId),
   ]);
   if (!roles || roles.length === 0) return null;
-  // hierarquia: DONO > ADMIN > PERSONAL > ALUNO
   const order: Role[] = ["DONO", "ADMIN", "PERSONAL", "ALUNO"];
   const role =
     order.find((r) => roles.some((x: { role: string }) => x.role === r)) ??
     "ALUNO";
+
+  let academia_id = profile?.academia_atual_id ?? roles[0].academia_id;
+  if (!academia_id) return null;
+
+  const { data: academia } = await supabase
+    .from("academias")
+    .select("nome")
+    .eq("id", academia_id)
+    .maybeSingle();
 
   let aluno_id: string | null = null;
   if (role === "ALUNO") {
@@ -371,6 +381,8 @@ async function buildAppSession(userId: string): Promise<AppSession | null> {
     role,
     aluno_id,
     personal_id: role === "PERSONAL" ? userId : null,
+    academia_id,
+    academia_nome: academia?.nome ?? "FitPro",
   };
 }
 
@@ -545,7 +557,10 @@ const API={
     return r.data;
   },
   async insert(table,row){
-    const r=await sb().from(table).insert(row).select().single();
+    const sess=window.__fp && window.__fp.session;
+    const TENANT_TABLES=['alunos','produtos','vendas','recorrencias','treinos','historico_cargas_treino','avaliacoes','aulas'];
+    const payload=TENANT_TABLES.indexOf(table)>=0 && sess ? Object.assign({academia_id:sess.academia_id},row) : row;
+    const r=await sb().from(table).insert(payload).select().single();
     if(r.error){console.warn('[API.insert]',table,r.error);toast('Erro: '+r.error.message,'error');return null;}
     return r.data;
   },
