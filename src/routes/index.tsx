@@ -557,7 +557,10 @@ const API={
     return r.data;
   },
   async insert(table,row){
-    const r=await sb().from(table).insert(row).select().single();
+    const sess=window.__fp && window.__fp.session;
+    const TENANT_TABLES=['alunos','produtos','vendas','recorrencias','treinos','historico_cargas_treino','avaliacoes','aulas'];
+    const payload=TENANT_TABLES.indexOf(table)>=0 && sess ? Object.assign({academia_id:sess.academia_id},row) : row;
+    const r=await sb().from(table).insert(payload).select().single();
     if(r.error){console.warn('[API.insert]',table,r.error);toast('Erro: '+r.error.message,'error');return null;}
     return r.data;
   },
