@@ -59,14 +59,13 @@ function FitProApp() {
   const initialized = useRef(false);
 
   // Injeta o script vanilla manualmente — React não executa <script> via dangerouslySetInnerHTML
+  // React não executa <script> via dangerouslySetInnerHTML — injetamos manualmente.
   useEffect(() => {
-    console.info("[FitPro] useEffect mount - injecting APP_JS");
     if (document.getElementById("fitpro-app-js")) return;
     const s = document.createElement("script");
     s.id = "fitpro-app-js";
     s.textContent = APP_JS;
     document.body.appendChild(s);
-    console.info("[FitPro] APP_JS injected, len=", APP_JS.length);
   }, []);
 
 
