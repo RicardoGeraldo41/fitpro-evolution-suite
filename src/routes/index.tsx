@@ -58,6 +58,16 @@ function FitProApp() {
   const [loginLoading, setLoginLoading] = useState(false);
   const initialized = useRef(false);
 
+  // Injeta o script vanilla manualmente — React não executa <script> via dangerouslySetInnerHTML
+  useEffect(() => {
+    if (document.getElementById("fitpro-app-js")) return;
+    const s = document.createElement("script");
+    s.id = "fitpro-app-js";
+    s.textContent = APP_JS;
+    document.body.appendChild(s);
+  }, []);
+
+
   // Boot: seed demo users (idempotente) + checa sessão atual
   useEffect(() => {
     if (initialized.current) return;
