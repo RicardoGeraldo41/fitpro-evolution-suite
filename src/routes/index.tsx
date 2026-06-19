@@ -347,15 +347,23 @@ function FitProApp() {
 /* Busca papel + perfil + vínculo aluno/personal a partir do user_id */
 async function buildAppSession(userId: string): Promise<AppSession | null> {
   const [{ data: profile }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("nome,email").eq("id", userId).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
+    supabase.from("profiles").select("nome,email,academia_atual_id").eq("id", userId).maybeSingle(),
+    supabase.from("user_roles").select("role,academia_id").eq("user_id", userId),
   ]);
   if (!roles || roles.length === 0) return null;
-  // hierarquia: DONO > ADMIN > PERSONAL > ALUNO
   const order: Role[] = ["DONO", "ADMIN", "PERSONAL", "ALUNO"];
   const role =
     order.find((r) => roles.some((x: { role: string }) => x.role === r)) ??
     "ALUNO";
+
+  let academia_id = profile?.academia_atual_id ?? roles[0].academia_id;
+  if (!academia_id) return null;
+
+  const { data: academia } = await supabase
+    .from("academias")
+    .select("nome")
+    .eq("id", academia_id)
+    .maybeSingle();
 
   let aluno_id: string | null = null;
   if (role === "ALUNO") {
@@ -373,6 +381,8 @@ async function buildAppSession(userId: string): Promise<AppSession | null> {
     role,
     aluno_id,
     personal_id: role === "PERSONAL" ? userId : null,
+    academia_id,
+    academia_nome: academia?.nome ?? "FitPro",
   };
 }
 
