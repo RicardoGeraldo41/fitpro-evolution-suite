@@ -58,6 +58,17 @@ function FitProApp() {
   const [loginLoading, setLoginLoading] = useState(false);
   const initialized = useRef(false);
 
+  // Injeta o script vanilla manualmente — React não executa <script> via dangerouslySetInnerHTML
+  // React não executa <script> via dangerouslySetInnerHTML — injetamos manualmente.
+  useEffect(() => {
+    if (document.getElementById("fitpro-app-js")) return;
+    const s = document.createElement("script");
+    s.id = "fitpro-app-js";
+    s.textContent = APP_JS;
+    document.body.appendChild(s);
+  }, []);
+
+
   // Boot: seed demo users (idempotente) + checa sessão atual
   useEffect(() => {
     if (initialized.current) return;
@@ -338,8 +349,6 @@ function FitProApp() {
 
       <div id="toast-container"></div>
 
-      {/* eslint-disable-next-line react/no-danger */}
-      <script dangerouslySetInnerHTML={{ __html: APP_JS }} />
     </>
   );
 }
