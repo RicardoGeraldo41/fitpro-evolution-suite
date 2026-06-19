@@ -32,6 +32,8 @@ type AppSession = {
   role: Role;
   aluno_id: string | null;
   personal_id: string | null;
+  academia_id: string;
+  academia_nome: string;
 };
 
 declare global {
