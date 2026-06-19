@@ -348,8 +348,6 @@ function FitProApp() {
 
       <div id="toast-container"></div>
 
-      {/* eslint-disable-next-line react/no-danger */}
-      <script dangerouslySetInnerHTML={{ __html: APP_JS }} />
     </>
   );
 }
