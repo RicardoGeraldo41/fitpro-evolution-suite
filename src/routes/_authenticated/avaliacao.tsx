@@ -60,13 +60,14 @@ function AvaliacaoPage() {
       coxa: Number(form.coxa),
     };
     if (!d.idade || !d.peso || !d.peitoral) { toast.error("Preencha todos os campos"); return; }
+    if (!session) return;
     const r = calcularPollock3(d);
     setResultado(r);
     const { error } = await supabase.from("avaliacoes").insert({
       aluno_id: alunoId,
       dados: { ...d, ...r },
-      avaliador_id: session?.user_id,
-      academia_id: session?.academia_id,
+      avaliador_id: session.user_id,
+      academia_id: session.academia_id,
     });
     if (error) { toast.error(error.message); return; }
     toast.success("Avaliação persistida");
