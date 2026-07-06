@@ -1,0 +1,101 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/fitpro/session";
+import { fmtBRL } from "@/lib/fitpro/utils";
+
+export const Route = createFileRoute("/_authenticated/pdv")({
+  component: PDVPage,
+});
+
+type Produto = { id: string; nome: string; preco: number; estoque_atual: number };
+type CartItem = { id: string; nome: string; preco: number; qtd: number };
+
+function PDVPage() {
+  const { session } = useSession();
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [pagamento, setPagamento] = useState("DINHEIRO");
+  const [log, setLog] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const { data } = await supabase.from("produtos").select("*").order("nome");
+    setProdutos((data ?? []) as Produto[]);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  function add(p: Produto) {
+    if (p.estoque_atual <= 0) { toast.error("Sem estoque"); return; }
+    setCart((c) => {
+      const ex = c.find((x) => x.id === p.id);
+      if (ex) return c.map((x) => x.id === p.id ? { ...x, qtd: x.qtd + 1 } : x);
+      return [...c, { id: p.id, nome: p.nome, preco: Number(p.preco), qtd: 1 }];
+    });
+  }
+
+  const total = cart.reduce((s, i) => s + i.preco * i.qtd, 0);
+
+  async function fecharVenda() {
+    if (!cart.length || !session) { toast.error("Carrinho vazio"); return; }
+    for (const item of cart) {
+      const p = produtos.find((x) => x.id === item.id);
+      if (!p) continue;
+      await supabase.from("produtos").update({ estoque_atual: p.estoque_atual - item.qtd }).eq("id", item.id);
+    }
+    const { error } = await supabase.from("vendas").insert({
+      items: cart.map((i) => ({ id: i.id, nome: i.nome, preco: i.preco, qtd: i.qtd, meio_pagamento: pagamento })),
+      total,
+      academia_id: session.academia_id,
+    });
+    if (error) { toast.error(error.message); return; }
+    setLog("Venda fechada • R$ " + fmtBRL(total) + " • " + pagamento);
+    toast.success("Venda registrada com sucesso");
+    setCart([]);
+    load();
+  }
+
+  return (
+    <section className="fp-view fp-glass">
+      <h2>PDV de Balcão — Recepção Expressa</h2>
+      <div className="fp-pdv-grid">
+        <div className="fp-glass-inner">
+          <h3>Catálogo</h3>
+          <div className="fp-catalog-grid">
+            {produtos.map((p) => (
+              <div key={p.id} className="fp-prod-card" onClick={() => add(p)}>
+                <h5>{p.nome}</h5>
+                <p>Estoque: {p.estoque_atual}</p>
+                <strong>R$ {fmtBRL(p.preco)}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="fp-glass-inner">
+          <h3>Carrinho</h3>
+          <ul className="fp-cart">
+            {cart.map((i) => (
+              <li key={i.id}>
+                <span>{i.qtd}× {i.nome}</span>
+                <span>R$ {fmtBRL(i.preco * i.qtd)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="fp-total">Total: R$ {fmtBRL(total)}</p>
+          <label className="fp-label">Meio de pagamento</label>
+          <select className="fp-select" value={pagamento} onChange={(e) => setPagamento(e.target.value)}>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="PIX">PIX</option>
+            <option value="DEBITO">Cartão Débito</option>
+            <option value="CREDITO">Cartão Crédito</option>
+          </select>
+          <button className="fp-btn fp-btn-primary" onClick={fecharVenda} style={{ marginTop: 14 }}>
+            Fechar Venda
+          </button>
+          {log && <p className="fp-log">{log}</p>}
+        </div>
+      </div>
+    </section>
+  );
+}
