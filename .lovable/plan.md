@@ -1,86 +1,94 @@
 
-# Plano de Evolução — FitPro GYM2
+# Auditoria FitPro GYM2 — o que está bom, o que falta, o que implementar
 
-Vou evoluir o ecossistema em 5 frentes, na ordem abaixo. Cada fase é independente e termina com o app funcional.
+## O que já está bom
 
-## Fase 1 — Multi-tenant por academia (fundação)
+- **Backend sólido no Lovable Cloud**: 11 tabelas com RLS + GRANTs corretos, funções `SECURITY DEFINER` (`has_role`, `is_staff`, `current_academia_id`, `has_role_na_academia`, `is_staff_na_academia`, `pode_acessar_academia`) — arquitetura de segurança sem escalonamento de privilégios.
+- **Multi-tenant real (Fase 1 concluída)**: `academia_id` propagado em todas as tabelas de domínio + RLS reescrito por academia.
+- **Auth com 4 perfis** (DONO/ADMIN/PERSONAL/ALUNO) + seed idempotente de contas demo.
+- **9 módulos funcionais**: Dashboard, Alunos, Biometria/Catraca, PDV, Recorrência, Treino, Avaliação (Pollock 3/7), Histórico, Grade de aulas, Evolução.
+- **Server functions com `requireSupabaseAuth`** + `attachSupabaseAuth` no `start.ts` (padrão TanStack correto).
 
-Sem isso, todo o resto fica preso a uma única unidade. É a mudança mais invasiva, então vem primeiro.
+## O que está faltando / frágil
 
-- Nova tabela `academias` (nome, cnpj, fuso, logo_url, plano_saas, status).
-- Coluna `academia_id uuid not null` em: `alunos`, `produtos`, `vendas`, `recorrencias`, `treinos`, `historico_cargas_treino`, `avaliacoes`, `aulas`, `user_roles`.
-- `profiles` ganha `academia_atual_id` (academia ativa quando o staff pertence a várias).
-- Nova função `current_academia_id()` SECURITY DEFINER lendo de `profiles`.
-- Todas as RLS reescritas: `academia_id = current_academia_id()` AND papel correspondente.
-- `has_role` vira `has_role(_user_id, _academia_id, _role)`.
-- Seed cria 1 academia demo "FitPro Matriz" e vincula as 4 contas demo.
-- UI: switcher de academia no header (só para DONO multi-unidade).
+**Arquitetura de UI**
+- Todo o app é 1 arquivo de 896 linhas com JavaScript vanilla injetado via `useEffect` + `document.createElement("script")`. Impede code-splitting, hot reload real, testes, tipagem, acessibilidade e uso de shadcn/recharts.
+- Sem rotas TanStack por módulo → URLs não são compartilháveis, sem deep-link, sem SSR de nada.
+- Zero componentes React de verdade apesar de 40+ componentes shadcn disponíveis.
 
-## Fase 2 — IA via Lovable AI Gateway
+**Funcionalidades ausentes**
+- **IA**: nenhum uso do Lovable AI Gateway (Fase 2 do plano original nunca entrou).
+- **Dashboards**: só cards estáticos, sem gráficos (recharts não instalado apesar de shadcn/chart existir).
+- **E-mails transacionais**: nada (boas-vindas, cobrança, recibo PDV, avaliação pronta).
+- **Pagamentos reais**: recorrência é 100% simulada, sem Stripe.
+- **Catraca real**: apenas mock local, sem webhook público assinado.
+- **Notificações in-app**: sem toasts de eventos, sem central de notificações.
+- **Upload de mídia**: sem foto de perfil do aluno, sem logo da academia, sem anexos de laudo (Storage buckets = 0).
+- **Relatórios**: sem exportação CSV/PDF de inadimplentes, financeiro, ficha, laudo.
+- **Auditoria**: sem `audit_log` de quem alterou o quê (crítico para academia com staff).
+- **Agendamento de aulas**: grade existe mas sem reserva de vaga pelo aluno.
+- **Check-in manual** (fallback quando catraca falha).
+- **Metas e gamificação** do aluno (streak, PRs, badges).
 
-Server functions usando `google/gemini-3-flash-preview` (sem secret manual).
+**Qualidade & operação**
+- Sem tratamento de erros global visível ao usuário (toasts).
+- Sem loading skeletons.
+- Sem paginação nas listas.
+- Sem testes.
+- Sem observabilidade (logs estruturados dos server fns).
+- SEO/meta ainda usa defaults "Lovable App".
 
-- `gerarFichaTreinoIA({ aluno_id, objetivo, frequencia, restricoes })` → devolve JSON estruturado (divisão A/B/C, exercícios, séries, reps, cargas iniciais sugeridas) e grava em `treinos`.
-- `analisarEvolucaoAluno({ aluno_id })` → cruza avaliações + cargas + frequência da catraca, devolve diagnóstico em texto + 3 recomendações ao personal.
-- `sugerirRetencao({ academia_id })` → lista alunos em risco de churn (inadimplência + queda de frequência) com mensagem personalizada para WhatsApp/e-mail.
-- UI: botão "✨ Gerar com IA" nas telas de Treino e Avaliação; widget "Alunos em risco" no Dashboard do DONO/ADMIN.
+## Roadmap priorizado (recomendação)
 
-## Fase 3 — Dashboards avançados e relatórios
-
-- Instalar `recharts` (já vem com shadcn) e renderizar dentro dos shells vanilla via portais React pontuais.
-- Gráficos: faturamento mensal (12 meses), MRR de recorrência, ticket médio PDV, retenção 30/60/90 dias, top 10 alunos por frequência, evolução de cargas por aluno (linha), composição corporal (radar Pollock).
-- Exportação CSV (client-side) e PDF (jsPDF) de: lista de inadimplentes, relatório financeiro do mês, ficha de treino do aluno, laudo antropométrico.
-- Filtros: período, plano, status financeiro, academia (multi-tenant).
-
-## Fase 4 — Notificações e e-mail transacional
-
-Usa **Lovable Emails** (já integrado ao Cloud, sem provider externo).
-
-- Setup do domínio de e-mail + infra de fila (`email_domain--setup_email_infra`).
-- Templates React Email em `src/lib/email-templates/`:
-  - `boas-vindas-aluno` (nova matrícula com credenciais provisórias)
-  - `cobranca-vencida` (após recorrência marcar pendente)
-  - `treino-atualizado` (personal salvou nova ficha)
-  - `avaliacao-pronta` (laudo antropométrico disponível)
-  - `recibo-pdv` (após fechar venda)
-- Triggers: server functions disparam `enqueue_email` após cada evento.
-- Página `/email/unsubscribe` brandizada com glassmorphism.
-
-## Fase 5 — Pagamentos reais com Stripe (substituindo recorrência simulada)
-
-- Rodar `recommend_payment_provider` → esperado Stripe (SaaS/serviços).
-- Habilitar `enable_stripe_payments` (Stripe gerenciado pela Lovable, sem chave manual).
-- Modelo: cada plano da academia vira um Price recorrente no Stripe; cada matrícula cria Customer + Subscription; PDV usa Checkout one-shot.
-- Webhook `/api/public/hooks/stripe` (com verificação de assinatura HMAC) → atualiza `recorrencias.status` e dispara e-mail de recibo/cobrança.
-- Painel "Tentar novamente" e link para portal do cliente Stripe.
-
-## Bônus — Webhook de catraca real
-
-Endpoint público `POST /api/public/hooks/catraca` que aceita payload `{ academia_id, biometria_id, dispositivo }` assinado com HMAC compartilhado (secret novo `CATRACA_WEBHOOK_SECRET`). Grava em `acessos_catraca`, valida status financeiro do aluno via `has_role`+RLS e devolve `{ liberar: true|false, motivo }`. O simulador atual passa a chamar esse webhook em vez de mockar localmente — assim o mesmo endpoint serve para hardware iDFace/Control iD real.
-
-## Ordem de implementação sugerida
+Ordem por **impacto ÷ esforço**:
 
 ```text
-1. Multi-tenant (migration grande + refactor RLS + UI switcher)
-2. IA (3 server functions + 2 botões + 1 widget)
-3. Dashboards (gráficos + exportações)
-4. E-mails (infra + 5 templates + triggers)
-5. Stripe (enable + migração da recorrência + webhook)
-6. Webhook catraca (endpoint + refactor do simulador)
+1. Refatorar UI para React + rotas TanStack (destrava tudo abaixo)
+2. IA no Lovable AI Gateway (ficha de treino, análise de evolução, retenção)
+3. Dashboards com recharts + exportação CSV/PDF
+4. Storage: foto do aluno + logo da academia + anexos de laudo
+5. E-mails transacionais (Lovable Emails)
+6. Pagamentos reais Stripe (built-in, sem chave manual)
+7. Webhook de catraca assinado (HMAC) — substitui simulador
+8. Auditoria + notificações in-app + agendamento de aulas
+9. Gamificação (streak, PRs, badges) + app mobile do aluno
 ```
 
-## Detalhes técnicos
+### Detalhes de cada frente
 
-- Todas as server functions privilegiadas usam `requireSupabaseAuth` + checagem de `has_role`/`is_staff`.
-- IA via `createLovableAiGatewayProvider` (sem secret do usuário).
-- Stripe e Catraca expostos só em `/api/public/hooks/*` com verificação de assinatura.
-- Migrations sempre com `GRANT` + `ENABLE RLS` + `POLICY` na mesma transação.
-- Tipos do Supabase regenerados após cada migration aprovada.
+**1. Refatoração UI (fundação)** — dividir `index.tsx` em rotas TanStack sob `_authenticated/`:
+- `/dashboard`, `/alunos`, `/alunos/$id`, `/treinos`, `/avaliacoes`, `/pdv`, `/recorrencia`, `/aulas`, `/catraca`, `/relatorios`, `/config`
+- Componentes React usando shadcn (Table, Dialog, Form, Sonner para toasts, Skeleton).
+- React Query em todos os fetchs, com invalidação.
 
-## O que NÃO está incluso
+**2. IA (Lovable AI Gateway, google/gemini-3-flash-preview)**:
+- `gerarFichaTreinoIA({ aluno_id, objetivo, frequencia, restricoes })`
+- `analisarEvolucaoAluno({ aluno_id })` cruza avaliações + cargas + frequência
+- `sugerirRetencao({ academia_id })` detecta churn e gera mensagem WhatsApp/e-mail
+- `resumirLaudoAntropometrico({ avaliacao_id })`
 
-- WebAuthn/câmera real (você escolheu manter simulado fora a catraca).
-- Apps mobile nativos.
-- Marketing/newsletter (Lovable Emails só permite transacional).
+**3. Dashboards**: `recharts` + widgets de faturamento 12m, MRR, retenção 30/60/90, top-10 frequência, evolução de cargas (linha), Pollock (radar). Exportações CSV client-side + jsPDF.
 
-Posso começar pela **Fase 1 (multi-tenant)** assim que aprovar — é uma migration grande e mexe em todas as RLS. Quer que eu execute as 5 fases em sequência sem parar para confirmação intermediária, ou pausamos a cada fase para você validar?
+**4. Storage**: buckets `alunos-fotos` (público), `academia-logos` (público), `avaliacoes-anexos` (privado com RLS).
+
+**5. E-mails**: templates React Email — boas-vindas, cobrança vencida, treino atualizado, avaliação pronta, recibo PDV.
+
+**6. Stripe built-in** (`enable_stripe_payments`, sem chave): 1 Price recorrente por plano, Customer+Subscription por matrícula, Checkout one-shot no PDV, webhook `/api/public/hooks/stripe` com HMAC.
+
+**7. Webhook catraca**: `POST /api/public/hooks/catraca` com HMAC (`CATRACA_WEBHOOK_SECRET`), valida status financeiro via RLS, devolve `{ liberar, motivo }`. Serve iDFace/Control iD real.
+
+**8. Auditoria + agendamento**: tabela `audit_log` genérica + `aula_reservas` com trigger de capacidade máxima.
+
+**9. Gamificação**: `metas`, `conquistas`, `pr_cargas` + widget "sequência de X dias treinando" no app do aluno.
+
+## Fora de escopo (por decisões anteriores)
+
+- WebAuthn/câmera biométrica real (mantém simulado, exceto catraca).
+- Apps mobile nativos (PWA sim, nativo não).
+- Marketing/newsletter.
+
+## Recomendação de próximo passo
+
+Começar pela **frente 1 (refatoração UI para React + rotas)** — sem isso, cada nova feature vira mais 100 linhas de JS vanilla injetado, e as frentes 2/3 (IA + gráficos) precisam obrigatoriamente de componentes React de verdade.
+
+Quer que eu execute a refatoração e já entregue junto a Fase 2 (IA) na sequência, ou prefere que eu escolha outra frente primeiro?
