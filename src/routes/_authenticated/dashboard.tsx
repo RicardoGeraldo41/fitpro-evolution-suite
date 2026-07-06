@@ -98,7 +98,41 @@ function DashboardPage() {
           <BarChart12m data={faturamento12m} />
         </>
       )}
+
+      {(session?.role === "DONO" || session?.role === "ADMIN") && <RetencaoWidget />}
     </section>
+  );
+}
+
+function RetencaoWidget() {
+  const fn = useServerFn(sugerirRetencao);
+  const [items, setItems] = useState<{ id: string; nome: string; mensagem: string }[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  async function run() {
+    setLoading(true);
+    try {
+      const r = await fn({});
+      setItems(r.alunos);
+      if (!r.alunos.length) toast.success("Nenhum aluno em risco 🎉");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha");
+    } finally { setLoading(false); }
+  }
+  return (
+    <div className="fp-ai-box">
+      <h4>✨ Retenção com IA</h4>
+      <p style={{ marginBottom: 10 }}>Detecta inadimplentes e gera mensagem personalizada para WhatsApp.</p>
+      <button className="fp-btn fp-btn-primary" onClick={run} disabled={loading}>
+        {loading ? "Analisando..." : "Sugerir contatos"}
+      </button>
+      {items && items.length > 0 && (
+        <ul className="fp-hist-list" style={{ marginTop: 12 }}>
+          {items.map((i) => (
+            <li key={i.id}><strong>{i.nome}:</strong> {i.mensagem}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
