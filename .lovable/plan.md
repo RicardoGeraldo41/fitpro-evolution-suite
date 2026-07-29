@@ -1,94 +1,42 @@
+Plano dividido em 4 blocos entregáveis em sequência. Cada bloco encerra com o sistema funcional — nada fica pela metade.
 
-# Auditoria FitPro GYM2 — o que está bom, o que falta, o que implementar
+## Bloco 1 — Refatoração UI legada → React puro
+- Remover a injeção do `APP_JS` (vanilla) em `src/routes/index.tsx`. A rota `/` vira apenas landing pública + CTA de login.
+- Consolidar layout autenticado em `src/routes/_authenticated/route.tsx` com `SidebarProvider` + `AppSidebar` (shadcn) já existente.
+- Padronizar todas as telas em `_authenticated/*.tsx` com: `useSuspenseQuery` + `queryOptions`, formulários com `react-hook-form` + `zod`, toasts `sonner`.
+- Deletar objetos globais `window.__fp` e helpers vanilla.
 
-## O que já está bom
+## Bloco 2 — Novos módulos de domínio
+Migração SQL (com GRANT + RLS por academia):
+- `medidas_corporais` (peso, %gordura, cintura, quadril, braço, coxa, foto_frente, foto_lado, foto_costas, data)
+- `alimentos` (catálogo por academia: nome, kcal, prot, carb, gord por 100g)
+- `planos_alimentares` + `refeicoes_plano` (nome, horário, itens jsonb com alimento_id/quantidade)
+- Bucket privado `evolucao-fotos` com RLS por `academia_id/aluno_id`.
+Telas novas:
+- `/medidas` — histórico + gráfico (Recharts) + upload de fotos lado a lado.
+- `/alimentacao` — CRUD de plano alimentar, cálculo automático de macros diários.
 
-- **Backend sólido no Lovable Cloud**: 11 tabelas com RLS + GRANTs corretos, funções `SECURITY DEFINER` (`has_role`, `is_staff`, `current_academia_id`, `has_role_na_academia`, `is_staff_na_academia`, `pode_acessar_academia`) — arquitetura de segurança sem escalonamento de privilégios.
-- **Multi-tenant real (Fase 1 concluída)**: `academia_id` propagado em todas as tabelas de domínio + RLS reescrito por academia.
-- **Auth com 4 perfis** (DONO/ADMIN/PERSONAL/ALUNO) + seed idempotente de contas demo.
-- **9 módulos funcionais**: Dashboard, Alunos, Biometria/Catraca, PDV, Recorrência, Treino, Avaliação (Pollock 3/7), Histórico, Grade de aulas, Evolução.
-- **Server functions com `requireSupabaseAuth`** + `attachSupabaseAuth` no `start.ts` (padrão TanStack correto).
+## Bloco 3 — Gamificação
+Migração SQL:
+- `conquistas` (código, nome, descrição, icone, xp)
+- `conquistas_usuario` (user_id, conquista_id, unlocked_at)
+- `pontos_xp` (user_id, xp_total, nivel) — trigger recalcula nível a cada insert em conquistas_usuario.
+- Seeds: 8 conquistas iniciais (Primeiro Treino, 7 dias seguidos, PR de carga, etc).
+Telas:
+- `/ranking` — top 20 alunos da academia por XP.
+- Widget de progresso/nível no `/dashboard` do aluno.
 
-## O que está faltando / frágil
+## Bloco 4 — Redesign Dark Premium + Auditoria
+- Redesign do design system em `src/styles.css`: paleta OKLCH escura (base `oklch(0.14 0.02 270)`, primary violeta neon, accent rosa), superfícies glassmorphism via `--gradient-glass` e `--shadow-elegant`. Tokens semânticos, zero cor hardcoded.
+- Sidebar, cards, botões e tabelas remapeados para os novos tokens.
+- Migração `audit_logs` (user_id, academia_id, acao, entidade, entidade_id, payload jsonb, ip, created_at) + trigger genérico registrando INSERT/UPDATE/DELETE em `alunos`, `vendas`, `recorrencias`, `treinos`.
+- Tela `/auditoria` (somente DONO/ADMIN) com filtros por data/usuário/ação.
 
-**Arquitetura de UI**
-- Todo o app é 1 arquivo de 896 linhas com JavaScript vanilla injetado via `useEffect` + `document.createElement("script")`. Impede code-splitting, hot reload real, testes, tipagem, acessibilidade e uso de shadcn/recharts.
-- Sem rotas TanStack por módulo → URLs não são compartilháveis, sem deep-link, sem SSR de nada.
-- Zero componentes React de verdade apesar de 40+ componentes shadcn disponíveis.
+## Detalhes técnicos
+- Server functions em `src/lib/*.functions.ts` com `.middleware([requireSupabaseAuth])`; helpers privados em `*.server.ts`.
+- Upload de fotos via `supabase.storage.from('evolucao-fotos').upload(...)` no client autenticado.
+- Todos os SELECTs continuam filtrados por `private.current_academia_id()` (já em vigor).
+- `audit_logs`: `service_role` full, `authenticated` só SELECT quando `is_staff_na_academia()`.
 
-**Funcionalidades ausentes**
-- **IA**: nenhum uso do Lovable AI Gateway (Fase 2 do plano original nunca entrou).
-- **Dashboards**: só cards estáticos, sem gráficos (recharts não instalado apesar de shadcn/chart existir).
-- **E-mails transacionais**: nada (boas-vindas, cobrança, recibo PDV, avaliação pronta).
-- **Pagamentos reais**: recorrência é 100% simulada, sem Stripe.
-- **Catraca real**: apenas mock local, sem webhook público assinado.
-- **Notificações in-app**: sem toasts de eventos, sem central de notificações.
-- **Upload de mídia**: sem foto de perfil do aluno, sem logo da academia, sem anexos de laudo (Storage buckets = 0).
-- **Relatórios**: sem exportação CSV/PDF de inadimplentes, financeiro, ficha, laudo.
-- **Auditoria**: sem `audit_log` de quem alterou o quê (crítico para academia com staff).
-- **Agendamento de aulas**: grade existe mas sem reserva de vaga pelo aluno.
-- **Check-in manual** (fallback quando catraca falha).
-- **Metas e gamificação** do aluno (streak, PRs, badges).
-
-**Qualidade & operação**
-- Sem tratamento de erros global visível ao usuário (toasts).
-- Sem loading skeletons.
-- Sem paginação nas listas.
-- Sem testes.
-- Sem observabilidade (logs estruturados dos server fns).
-- SEO/meta ainda usa defaults "Lovable App".
-
-## Roadmap priorizado (recomendação)
-
-Ordem por **impacto ÷ esforço**:
-
-```text
-1. Refatorar UI para React + rotas TanStack (destrava tudo abaixo)
-2. IA no Lovable AI Gateway (ficha de treino, análise de evolução, retenção)
-3. Dashboards com recharts + exportação CSV/PDF
-4. Storage: foto do aluno + logo da academia + anexos de laudo
-5. E-mails transacionais (Lovable Emails)
-6. Pagamentos reais Stripe (built-in, sem chave manual)
-7. Webhook de catraca assinado (HMAC) — substitui simulador
-8. Auditoria + notificações in-app + agendamento de aulas
-9. Gamificação (streak, PRs, badges) + app mobile do aluno
-```
-
-### Detalhes de cada frente
-
-**1. Refatoração UI (fundação)** — dividir `index.tsx` em rotas TanStack sob `_authenticated/`:
-- `/dashboard`, `/alunos`, `/alunos/$id`, `/treinos`, `/avaliacoes`, `/pdv`, `/recorrencia`, `/aulas`, `/catraca`, `/relatorios`, `/config`
-- Componentes React usando shadcn (Table, Dialog, Form, Sonner para toasts, Skeleton).
-- React Query em todos os fetchs, com invalidação.
-
-**2. IA (Lovable AI Gateway, google/gemini-3-flash-preview)**:
-- `gerarFichaTreinoIA({ aluno_id, objetivo, frequencia, restricoes })`
-- `analisarEvolucaoAluno({ aluno_id })` cruza avaliações + cargas + frequência
-- `sugerirRetencao({ academia_id })` detecta churn e gera mensagem WhatsApp/e-mail
-- `resumirLaudoAntropometrico({ avaliacao_id })`
-
-**3. Dashboards**: `recharts` + widgets de faturamento 12m, MRR, retenção 30/60/90, top-10 frequência, evolução de cargas (linha), Pollock (radar). Exportações CSV client-side + jsPDF.
-
-**4. Storage**: buckets `alunos-fotos` (público), `academia-logos` (público), `avaliacoes-anexos` (privado com RLS).
-
-**5. E-mails**: templates React Email — boas-vindas, cobrança vencida, treino atualizado, avaliação pronta, recibo PDV.
-
-**6. Stripe built-in** (`enable_stripe_payments`, sem chave): 1 Price recorrente por plano, Customer+Subscription por matrícula, Checkout one-shot no PDV, webhook `/api/public/hooks/stripe` com HMAC.
-
-**7. Webhook catraca**: `POST /api/public/hooks/catraca` com HMAC (`CATRACA_WEBHOOK_SECRET`), valida status financeiro via RLS, devolve `{ liberar, motivo }`. Serve iDFace/Control iD real.
-
-**8. Auditoria + agendamento**: tabela `audit_log` genérica + `aula_reservas` com trigger de capacidade máxima.
-
-**9. Gamificação**: `metas`, `conquistas`, `pr_cargas` + widget "sequência de X dias treinando" no app do aluno.
-
-## Fora de escopo (por decisões anteriores)
-
-- WebAuthn/câmera biométrica real (mantém simulado, exceto catraca).
-- Apps mobile nativos (PWA sim, nativo não).
-- Marketing/newsletter.
-
-## Recomendação de próximo passo
-
-Começar pela **frente 1 (refatoração UI para React + rotas)** — sem isso, cada nova feature vira mais 100 linhas de JS vanilla injetado, e as frentes 2/3 (IA + gráficos) precisam obrigatoriamente de componentes React de verdade.
-
-Quer que eu execute a refatoração e já entregue junto a Fase 2 (IA) na sequência, ou prefere que eu escolha outra frente primeiro?
+## Execução
+Vou entregar Bloco 1 e Bloco 4 (design + auditoria) primeiro, depois Bloco 2 e Bloco 3. Cada bloco: migração SQL (aprovação sua) → código → verificação. Confirma que posso começar?

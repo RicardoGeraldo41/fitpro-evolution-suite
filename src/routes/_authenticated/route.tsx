@@ -17,8 +17,12 @@ const NAV: NavItem[] = [
   { to: "/recorrencia", label: "Recorrência", roles: ["DONO", "ADMIN"] },
   { to: "/treino", label: "Modo Em Treino", roles: ["ALUNO"] },
   { to: "/avaliacao", label: "Avaliação", roles: ["DONO", "PERSONAL"] },
+  { to: "/medidas", label: "Medidas & Fotos", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
+  { to: "/alimentacao", label: "Plano Alimentar", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
   { to: "/grade", label: "Grade de Aulas", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
   { to: "/evolucao", label: "Minha Evolução", roles: ["ALUNO"] },
+  { to: "/ranking", label: "Ranking XP", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
+  { to: "/auditoria", label: "Auditoria", roles: ["DONO", "ADMIN"] },
 ];
 
 function AuthLayout() {

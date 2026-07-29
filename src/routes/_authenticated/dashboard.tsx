@@ -100,7 +100,50 @@ function DashboardPage() {
       )}
 
       {(session?.role === "DONO" || session?.role === "ADMIN") && <RetencaoWidget />}
+      {session?.role === "ALUNO" && <XPWidget userId={session.user_id} />}
     </section>
+  );
+}
+
+function XPWidget({ userId }: { userId: string }) {
+  const [xp, setXp] = useState<{ xp_total: number; nivel: number } | null>(null);
+  const [conquistas, setConquistas] = useState<{ nome: string; icone: string | null; xp: number; unlocked_at: string }[]>([]);
+  useEffect(() => {
+    (async () => {
+      const { data: p } = await supabase.from("pontos_xp").select("xp_total,nivel").eq("user_id", userId).maybeSingle();
+      setXp(p ?? { xp_total: 0, nivel: 1 });
+      const { data: cu } = await supabase
+        .from("conquistas_usuario")
+        .select("unlocked_at,conquistas(nome,icone,xp)")
+        .eq("user_id", userId)
+        .order("unlocked_at", { ascending: false })
+        .limit(6);
+      setConquistas(
+        (cu ?? []).map((c: { unlocked_at: string; conquistas: { nome: string; icone: string | null; xp: number } | null }) => ({
+          unlocked_at: c.unlocked_at,
+          nome: c.conquistas?.nome ?? "-",
+          icone: c.conquistas?.icone ?? null,
+          xp: c.conquistas?.xp ?? 0,
+        }))
+      );
+    })();
+  }, [userId]);
+  const progresso = xp ? xp.xp_total % 100 : 0;
+  return (
+    <div className="fp-ai-box">
+      <h4>🎮 Sua Jornada</h4>
+      <p>Nível <strong style={{ color: "var(--fp-neon)" }}>{xp?.nivel ?? 1}</strong> · <strong>{xp?.xp_total ?? 0} XP</strong></p>
+      <div style={{ height: 8, background: "rgba(0,0,0,0.4)", borderRadius: 6, marginTop: 8, overflow: "hidden" }}>
+        <div style={{ width: progresso + "%", height: "100%", background: "linear-gradient(90deg, var(--fp-neon2), var(--fp-neon))" }} />
+      </div>
+      {conquistas.length > 0 && (
+        <ul className="fp-hist-list" style={{ marginTop: 12 }}>
+          {conquistas.map((c, i) => (
+            <li key={i}>🏅 <strong>{c.nome}</strong> · +{c.xp} XP</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

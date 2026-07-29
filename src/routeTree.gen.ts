@@ -12,13 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAlimentacaoRouteImport } from './routes/_authenticated/alimentacao'
 import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
+import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedAvaliacaoRouteImport } from './routes/_authenticated/avaliacao'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticated/evolucao'
 import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
+import { Route as AuthenticatedMedidasRouteImport } from './routes/_authenticated/medidas'
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
+import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
 
@@ -36,9 +40,20 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAlimentacaoRoute =
+  AuthenticatedAlimentacaoRouteImport.update({
+    id: '/alimentacao',
+    path: '/alimentacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAlunosRoute = AuthenticatedAlunosRouteImport.update({
   id: '/alunos',
   path: '/alunos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAvaliacaoRoute = AuthenticatedAvaliacaoRouteImport.update({
@@ -66,9 +81,19 @@ const AuthenticatedGradeRoute = AuthenticatedGradeRouteImport.update({
   path: '/grade',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMedidasRoute = AuthenticatedMedidasRouteImport.update({
+  id: '/medidas',
+  path: '/medidas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
   id: '/pdv',
   path: '/pdv',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecorrenciaRoute =
@@ -86,26 +111,34 @@ const AuthenticatedTreinoRoute = AuthenticatedTreinoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/alunos': typeof AuthenticatedAlunosRoute
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/evolucao': typeof AuthenticatedEvolucaoRoute
   '/grade': typeof AuthenticatedGradeRoute
+  '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/alunos': typeof AuthenticatedAlunosRoute
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/evolucao': typeof AuthenticatedEvolucaoRoute
   '/grade': typeof AuthenticatedGradeRoute
+  '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
@@ -114,13 +147,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/_authenticated/alunos': typeof AuthenticatedAlunosRoute
+  '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/evolucao': typeof AuthenticatedEvolucaoRoute
   '/_authenticated/grade': typeof AuthenticatedGradeRoute
+  '/_authenticated/medidas': typeof AuthenticatedMedidasRoute
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
+  '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/treino': typeof AuthenticatedTreinoRoute
 }
@@ -129,26 +166,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/alimentacao'
     | '/alunos'
+    | '/auditoria'
     | '/avaliacao'
     | '/biometria'
     | '/dashboard'
     | '/evolucao'
     | '/grade'
+    | '/medidas'
     | '/pdv'
+    | '/ranking'
     | '/recorrencia'
     | '/treino'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/alimentacao'
     | '/alunos'
+    | '/auditoria'
     | '/avaliacao'
     | '/biometria'
     | '/dashboard'
     | '/evolucao'
     | '/grade'
+    | '/medidas'
     | '/pdv'
+    | '/ranking'
     | '/recorrencia'
     | '/treino'
   id:
@@ -156,13 +201,17 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/alimentacao'
     | '/_authenticated/alunos'
+    | '/_authenticated/auditoria'
     | '/_authenticated/avaliacao'
     | '/_authenticated/biometria'
     | '/_authenticated/dashboard'
     | '/_authenticated/evolucao'
     | '/_authenticated/grade'
+    | '/_authenticated/medidas'
     | '/_authenticated/pdv'
+    | '/_authenticated/ranking'
     | '/_authenticated/recorrencia'
     | '/_authenticated/treino'
   fileRoutesById: FileRoutesById
@@ -196,11 +245,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/alimentacao': {
+      id: '/_authenticated/alimentacao'
+      path: '/alimentacao'
+      fullPath: '/alimentacao'
+      preLoaderRoute: typeof AuthenticatedAlimentacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/alunos': {
       id: '/_authenticated/alunos'
       path: '/alunos'
       fullPath: '/alunos'
       preLoaderRoute: typeof AuthenticatedAlunosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/auditoria': {
+      id: '/_authenticated/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuthenticatedAuditoriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/avaliacao': {
@@ -238,11 +301,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGradeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/medidas': {
+      id: '/_authenticated/medidas'
+      path: '/medidas'
+      fullPath: '/medidas'
+      preLoaderRoute: typeof AuthenticatedMedidasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pdv': {
       id: '/_authenticated/pdv'
       path: '/pdv'
       fullPath: '/pdv'
       preLoaderRoute: typeof AuthenticatedPdvRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ranking': {
+      id: '/_authenticated/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof AuthenticatedRankingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recorrencia': {
@@ -263,25 +340,33 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlimentacaoRoute: typeof AuthenticatedAlimentacaoRoute
   AuthenticatedAlunosRoute: typeof AuthenticatedAlunosRoute
+  AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedAvaliacaoRoute: typeof AuthenticatedAvaliacaoRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEvolucaoRoute: typeof AuthenticatedEvolucaoRoute
   AuthenticatedGradeRoute: typeof AuthenticatedGradeRoute
+  AuthenticatedMedidasRoute: typeof AuthenticatedMedidasRoute
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
+  AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedTreinoRoute: typeof AuthenticatedTreinoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlimentacaoRoute: AuthenticatedAlimentacaoRoute,
   AuthenticatedAlunosRoute: AuthenticatedAlunosRoute,
+  AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedAvaliacaoRoute: AuthenticatedAvaliacaoRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEvolucaoRoute: AuthenticatedEvolucaoRoute,
   AuthenticatedGradeRoute: AuthenticatedGradeRoute,
+  AuthenticatedMedidasRoute: AuthenticatedMedidasRoute,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,
+  AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedTreinoRoute: AuthenticatedTreinoRoute,
 }
