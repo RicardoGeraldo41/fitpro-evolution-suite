@@ -514,31 +514,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      current_academia_id: { Args: never; Returns: string }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      has_role_na_academia: {
-        Args: {
-          _academia_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
-      is_staff_na_academia: {
-        Args: { _academia_id: string; _user_id: string }
-        Returns: boolean
-      }
-      pode_acessar_academia: {
-        Args: { _academia_id: string; _user_id: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "DONO" | "ADMIN" | "PERSONAL" | "ALUNO"

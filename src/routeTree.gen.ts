@@ -9,36 +9,66 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
-import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
-import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
-import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
-import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticated/evolucao'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
-import { Route as AuthenticatedAvaliacaoRouteImport } from './routes/_authenticated/avaliacao'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
+import { Route as AuthenticatedAvaliacaoRouteImport } from './routes/_authenticated/avaliacao'
+import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticated/evolucao'
+import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
+import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
+import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
+import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTreinoRoute = AuthenticatedTreinoRouteImport.update({
-  id: '/treino',
-  path: '/treino',
+const AuthenticatedAlunosRoute = AuthenticatedAlunosRouteImport.update({
+  id: '/alunos',
+  path: '/alunos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAvaliacaoRoute = AuthenticatedAvaliacaoRouteImport.update({
+  id: '/avaliacao',
+  path: '/avaliacao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
+  id: '/biometria',
+  path: '/biometria',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEvolucaoRoute = AuthenticatedEvolucaoRouteImport.update({
+  id: '/evolucao',
+  path: '/evolucao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGradeRoute = AuthenticatedGradeRouteImport.update({
+  id: '/grade',
+  path: '/grade',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
+  id: '/pdv',
+  path: '/pdv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecorrenciaRoute =
@@ -47,39 +77,9 @@ const AuthenticatedRecorrenciaRoute =
     path: '/recorrencia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
-  id: '/pdv',
-  path: '/pdv',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGradeRoute = AuthenticatedGradeRouteImport.update({
-  id: '/grade',
-  path: '/grade',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedEvolucaoRoute = AuthenticatedEvolucaoRouteImport.update({
-  id: '/evolucao',
-  path: '/evolucao',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
-  id: '/biometria',
-  path: '/biometria',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAvaliacaoRoute = AuthenticatedAvaliacaoRouteImport.update({
-  id: '/avaliacao',
-  path: '/avaliacao',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAlunosRoute = AuthenticatedAlunosRouteImport.update({
-  id: '/alunos',
-  path: '/alunos',
+const AuthenticatedTreinoRoute = AuthenticatedTreinoRouteImport.update({
+  id: '/treino',
+  path: '/treino',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -175,11 +175,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -189,60 +189,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/treino': {
-      id: '/_authenticated/treino'
-      path: '/treino'
-      fullPath: '/treino'
-      preLoaderRoute: typeof AuthenticatedTreinoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/recorrencia': {
-      id: '/_authenticated/recorrencia'
-      path: '/recorrencia'
-      fullPath: '/recorrencia'
-      preLoaderRoute: typeof AuthenticatedRecorrenciaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/pdv': {
-      id: '/_authenticated/pdv'
-      path: '/pdv'
-      fullPath: '/pdv'
-      preLoaderRoute: typeof AuthenticatedPdvRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/grade': {
-      id: '/_authenticated/grade'
-      path: '/grade'
-      fullPath: '/grade'
-      preLoaderRoute: typeof AuthenticatedGradeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/evolucao': {
-      id: '/_authenticated/evolucao'
-      path: '/evolucao'
-      fullPath: '/evolucao'
-      preLoaderRoute: typeof AuthenticatedEvolucaoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/biometria': {
-      id: '/_authenticated/biometria'
-      path: '/biometria'
-      fullPath: '/biometria'
-      preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
+    '/_authenticated/alunos': {
+      id: '/_authenticated/alunos'
+      path: '/alunos'
+      fullPath: '/alunos'
+      preLoaderRoute: typeof AuthenticatedAlunosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/avaliacao': {
@@ -252,11 +210,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAvaliacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/alunos': {
-      id: '/_authenticated/alunos'
-      path: '/alunos'
-      fullPath: '/alunos'
-      preLoaderRoute: typeof AuthenticatedAlunosRouteImport
+    '/_authenticated/biometria': {
+      id: '/_authenticated/biometria'
+      path: '/biometria'
+      fullPath: '/biometria'
+      preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/evolucao': {
+      id: '/_authenticated/evolucao'
+      path: '/evolucao'
+      fullPath: '/evolucao'
+      preLoaderRoute: typeof AuthenticatedEvolucaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/grade': {
+      id: '/_authenticated/grade'
+      path: '/grade'
+      fullPath: '/grade'
+      preLoaderRoute: typeof AuthenticatedGradeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pdv': {
+      id: '/_authenticated/pdv'
+      path: '/pdv'
+      fullPath: '/pdv'
+      preLoaderRoute: typeof AuthenticatedPdvRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recorrencia': {
+      id: '/_authenticated/recorrencia'
+      path: '/recorrencia'
+      fullPath: '/recorrencia'
+      preLoaderRoute: typeof AuthenticatedRecorrenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/treino': {
+      id: '/_authenticated/treino'
+      path: '/treino'
+      fullPath: '/treino'
+      preLoaderRoute: typeof AuthenticatedTreinoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -297,13 +297,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
