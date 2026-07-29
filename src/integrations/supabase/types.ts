@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      alimentos: {
+        Row: {
+          academia_id: string
+          carboidratos: number
+          created_at: string
+          gorduras: number
+          id: string
+          kcal: number
+          nome: string
+          proteinas: number
+        }
+        Insert: {
+          academia_id: string
+          carboidratos?: number
+          created_at?: string
+          gorduras?: number
+          id?: string
+          kcal?: number
+          nome: string
+          proteinas?: number
+        }
+        Update: {
+          academia_id?: string
+          carboidratos?: number
+          created_at?: string
+          gorduras?: number
+          id?: string
+          kcal?: number
+          nome?: string
+          proteinas?: number
+        }
+        Relationships: []
+      }
       alunos: {
         Row: {
           academia_id: string
@@ -116,6 +149,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_logs: {
+        Row: {
+          academia_id: string | null
+          acao: string
+          created_at: string
+          entidade: string
+          entidade_id: string | null
+          id: string
+          payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          academia_id?: string | null
+          acao: string
+          created_at?: string
+          entidade: string
+          entidade_id?: string | null
+          id?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          academia_id?: string | null
+          acao?: string
+          created_at?: string
+          entidade?: string
+          entidade_id?: string | null
+          id?: string
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       aulas: {
         Row: {
@@ -207,6 +273,68 @@ export type Database = {
           },
         ]
       }
+      conquistas: {
+        Row: {
+          codigo: string
+          created_at: string
+          descricao: string | null
+          icone: string | null
+          id: string
+          nome: string
+          xp: number
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome: string
+          xp?: number
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      conquistas_usuario: {
+        Row: {
+          academia_id: string
+          conquista_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          academia_id: string
+          conquista_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          academia_id?: string
+          conquista_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conquistas_usuario_conquista_id_fkey"
+            columns: ["conquista_id"]
+            isOneToOne: false
+            referencedRelation: "conquistas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       historico_cargas_treino: {
         Row: {
           academia_id: string
@@ -251,6 +379,139 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      medidas_corporais: {
+        Row: {
+          academia_id: string
+          aluno_id: string
+          braco: number | null
+          cintura: number | null
+          coxa: number | null
+          created_at: string
+          created_by: string | null
+          data: string
+          foto_costas: string | null
+          foto_frente: string | null
+          foto_lado: string | null
+          id: string
+          observacoes: string | null
+          percentual_gordura: number | null
+          peso: number | null
+          quadril: number | null
+          updated_at: string
+        }
+        Insert: {
+          academia_id: string
+          aluno_id: string
+          braco?: number | null
+          cintura?: number | null
+          coxa?: number | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          foto_costas?: string | null
+          foto_frente?: string | null
+          foto_lado?: string | null
+          id?: string
+          observacoes?: string | null
+          percentual_gordura?: number | null
+          peso?: number | null
+          quadril?: number | null
+          updated_at?: string
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string
+          braco?: number | null
+          cintura?: number | null
+          coxa?: number | null
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          foto_costas?: string | null
+          foto_frente?: string | null
+          foto_lado?: string | null
+          id?: string
+          observacoes?: string | null
+          percentual_gordura?: number | null
+          peso?: number | null
+          quadril?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medidas_corporais_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos_alimentares: {
+        Row: {
+          academia_id: string
+          aluno_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          nome: string
+          refeicoes: Json
+          updated_at: string
+        }
+        Insert: {
+          academia_id: string
+          aluno_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nome: string
+          refeicoes?: Json
+          updated_at?: string
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nome?: string
+          refeicoes?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_alimentares_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pontos_xp: {
+        Row: {
+          academia_id: string
+          nivel: number
+          updated_at: string
+          user_id: string
+          xp_total: number
+        }
+        Insert: {
+          academia_id: string
+          nivel?: number
+          updated_at?: string
+          user_id: string
+          xp_total?: number
+        }
+        Update: {
+          academia_id?: string
+          nivel?: number
+          updated_at?: string
+          user_id?: string
+          xp_total?: number
+        }
+        Relationships: []
       }
       produtos: {
         Row: {
