@@ -17,6 +17,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const [recuperando, setRecuperando] = useState(false);
   const navigate = useNavigate();
   const { session, refresh } = useSession();
   const seedFn = useServerFn(seedFitProDemoUsers);
