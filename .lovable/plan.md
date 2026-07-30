@@ -1,42 +1,50 @@
-Plano dividido em 4 blocos entregáveis em sequência. Cada bloco encerra com o sistema funcional — nada fica pela metade.
+## O que já está pronto
 
-## Bloco 1 — Refatoração UI legada → React puro
-- Remover a injeção do `APP_JS` (vanilla) em `src/routes/index.tsx`. A rota `/` vira apenas landing pública + CTA de login.
-- Consolidar layout autenticado em `src/routes/_authenticated/route.tsx` com `SidebarProvider` + `AppSidebar` (shadcn) já existente.
-- Padronizar todas as telas em `_authenticated/*.tsx` com: `useSuspenseQuery` + `queryOptions`, formulários com `react-hook-form` + `zod`, toasts `sonner`.
-- Deletar objetos globais `window.__fp` e helpers vanilla.
+Verifiquei o código e o banco: RBAC (DONO/ADMIN/PERSONAL/ALUNO) com RLS por academia, multi-tenant, alunos, PDV, recorrência, treino, avaliação, medidas + fotos, plano alimentar, gamificação (XP/conquistas/ranking), auditoria e IA. A base é sólida.
 
-## Bloco 2 — Novos módulos de domínio
-Migração SQL (com GRANT + RLS por academia):
-- `medidas_corporais` (peso, %gordura, cintura, quadril, braço, coxa, foto_frente, foto_lado, foto_costas, data)
-- `alimentos` (catálogo por academia: nome, kcal, prot, carb, gord por 100g)
-- `planos_alimentares` + `refeicoes_plano` (nome, horário, itens jsonb com alimento_id/quantidade)
-- Bucket privado `evolucao-fotos` com RLS por `academia_id/aluno_id`.
-Telas novas:
-- `/medidas` — histórico + gráfico (Recharts) + upload de fotos lado a lado.
-- `/alimentacao` — CRUD de plano alimentar, cálculo automático de macros diários.
+## O que ainda falta para uso real
 
-## Bloco 3 — Gamificação
-Migração SQL:
-- `conquistas` (código, nome, descrição, icone, xp)
-- `conquistas_usuario` (user_id, conquista_id, unlocked_at)
-- `pontos_xp` (user_id, xp_total, nivel) — trigger recalcula nível a cada insert em conquistas_usuario.
-- Seeds: 8 conquistas iniciais (Primeiro Treino, 7 dias seguidos, PR de carga, etc).
-Telas:
-- `/ranking` — top 20 alunos da academia por XP.
-- Widget de progresso/nível no `/dashboard` do aluno.
+**1. Check-in / catraca é só simulação (crítico)**
+Em `biometria.tsx` a digital é um hash aleatório, o facial é um vetor fake e a catraca só imprime um log — não existe tabela de acessos. Uma academia precisa de histórico de entradas, quem entrou, quando, e bloqueio de inadimplente registrado.
+- Criar tabela `acessos` (aluno, tipo de entrada, permitido, motivo, timestamp).
+- Tela de recepção "modo catraca" com busca por nome/CPF e registro real do acesso.
+- Endpoint público assinado (HMAC) em `/api/public/catraca` para hardware físico integrar depois.
 
-## Bloco 4 — Redesign Dark Premium + Auditoria
-- Redesign do design system em `src/styles.css`: paleta OKLCH escura (base `oklch(0.14 0.02 270)`, primary violeta neon, accent rosa), superfícies glassmorphism via `--gradient-glass` e `--shadow-elegant`. Tokens semânticos, zero cor hardcoded.
-- Sidebar, cards, botões e tabelas remapeados para os novos tokens.
-- Migração `audit_logs` (user_id, academia_id, acao, entidade, entidade_id, payload jsonb, ip, created_at) + trigger genérico registrando INSERT/UPDATE/DELETE em `alunos`, `vendas`, `recorrencias`, `treinos`.
-- Tela `/auditoria` (somente DONO/ADMIN) com filtros por data/usuário/ação.
+**2. Aulas: agendar não agenda nada**
+Em `grade.tsx` o botão "Agendar" só mostra um toast. Falta tabela `agendamentos`, controle de vagas restantes, cancelamento, lista de presença e visão do aluno "minhas aulas". A grade também não tem dia da semana, só um texto de horário.
+
+**3. Financeiro não fecha o ciclo**
+`recorrencias` guarda status, mas não há: registro de pagamentos efetivos (histórico), baixa manual com forma de pagamento, geração automática das mensalidades do mês, marcação automática de ATRASADO por vencimento, nem sincronização do `status_financeiro` do aluno (que hoje é manual e é justamente o que libera a catraca). Também não há recibo/comprovante nem fechamento de caixa do PDV.
+
+**4. Ciclo de vida do aluno**
+Não existe matrícula/contrato com data de início, fim e renovação; nem plano cadastrável (hoje `plano` e `valor_plano` são texto livre digitado a cada aluno); nem status ATIVO/TRANCADO/CANCELADO; nem dados básicos reais (CPF, telefone, nascimento, endereço, contato de emergência, PAR-Q). Sem isso não dá para operar recepção.
+
+**5. Onboarding e contas**
+Signup público está desligado e as 4 contas demo são criadas automaticamente com senhas fixas visíveis na tela de login — ok para demo, inaceitável em produção. Falta: cadastro da academia (dono cria sua unidade), convite/criação de usuários pela equipe, vínculo do aluno ao login dele, recuperação de senha (`/reset-password` não existe) e remoção do bloco de contas demo.
+
+**6. Comunicação**
+Nada de e-mail/WhatsApp: cobrança de vencimento, boas-vindas, aviso de treino novo, aniversário, aluno sumido há X dias. É o principal motor de retenção e hoje é zero.
+
+**7. Relatórios e operação**
+Dashboard tem faturamento, mas falta: frequência por período, inadimplência detalhada, alunos em risco de evasão (com base em acessos reais), ticket médio, exportação CSV/PDF, e filtro por período.
+
+**8. Mobile e UX de recepção**
+As telas usam grids fixos e tabelas largas; no celular do aluno e no tablet da recepção isso quebra. Falta layout responsivo e um modo recepção simplificado.
+
+**9. Robustez**
+Sem estados de carregando/erro/vazio consistentes, sem paginação (as listas carregam tudo), `prompt()` usado para criar plano alimentar, sem validação Zod nos formulários, sem confirmação em exclusões.
+
+## Sugestão de ordem
+
+1. Check-in real + acessos + status financeiro automático (destrava o uso diário)
+2. Ciclo de vida do aluno: planos, matrícula, dados cadastrais, status
+3. Financeiro: pagamentos, baixa, geração mensal, inadimplência automática
+4. Agendamento de aulas com vagas e presença
+5. Onboarding real (criar academia, convidar equipe, reset de senha, tirar demo)
+6. Comunicação automática + relatórios + responsividade
 
 ## Detalhes técnicos
-- Server functions em `src/lib/*.functions.ts` com `.middleware([requireSupabaseAuth])`; helpers privados em `*.server.ts`.
-- Upload de fotos via `supabase.storage.from('evolucao-fotos').upload(...)` no client autenticado.
-- Todos os SELECTs continuam filtrados por `private.current_academia_id()` (já em vigor).
-- `audit_logs`: `service_role` full, `authenticated` só SELECT quando `is_staff_na_academia()`.
 
-## Execução
-Vou entregar Bloco 1 e Bloco 4 (design + auditoria) primeiro, depois Bloco 2 e Bloco 3. Cada bloco: migração SQL (aprovação sua) → código → verificação. Confirma que posso começar?
+Novas tabelas: `acessos`, `agendamentos`, `pagamentos`, `planos`, `matriculas`; colunas extras em `alunos` (cpf, telefone, nascimento, status, contato emergência) e em `aulas` (dia_semana, duração, capacidade). Todas com GRANT + RLS por `academia_id`, seguindo o padrão já usado. Job diário (pg_cron) para marcar atrasados e sincronizar `status_financeiro`. E-mails via função de servidor. Endpoint de catraca sob `/api/public/*` com verificação HMAC.
+
+Me diga por onde começar — recomendo o item 1 primeiro, pois é o que impede a academia de usar o sistema na portaria hoje.

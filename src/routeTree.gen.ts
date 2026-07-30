@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAlimentacaoRouteImport } from './routes/_authenticated/alimentacao'
 import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated/alunos'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
@@ -22,7 +23,9 @@ import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
 import { Route as AuthenticatedMedidasRouteImport } from './routes/_authenticated/medidas'
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
+import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
+import { Route as AuthenticatedRecepcaoRouteImport } from './routes/_authenticated/recepcao'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
 
@@ -38,6 +41,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAlimentacaoRoute =
@@ -91,9 +99,19 @@ const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
   path: '/pdv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanosRoute = AuthenticatedPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
   id: '/ranking',
   path: '/ranking',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRecepcaoRoute = AuthenticatedRecepcaoRouteImport.update({
+  id: '/recepcao',
+  path: '/recepcao',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRecorrenciaRoute =
@@ -111,6 +129,7 @@ const AuthenticatedTreinoRoute = AuthenticatedTreinoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -121,13 +140,16 @@ export interface FileRoutesByFullPath {
   '/grade': typeof AuthenticatedGradeRoute
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/alunos': typeof AuthenticatedAlunosRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -138,7 +160,9 @@ export interface FileRoutesByTo {
   '/grade': typeof AuthenticatedGradeRoute
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
@@ -147,6 +171,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/alimentacao': typeof AuthenticatedAlimentacaoRoute
   '/_authenticated/alunos': typeof AuthenticatedAlunosRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
@@ -157,7 +182,9 @@ export interface FileRoutesById {
   '/_authenticated/grade': typeof AuthenticatedGradeRoute
   '/_authenticated/medidas': typeof AuthenticatedMedidasRoute
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
+  '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
+  '/_authenticated/recepcao': typeof AuthenticatedRecepcaoRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/treino': typeof AuthenticatedTreinoRoute
 }
@@ -166,6 +193,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/reset-password'
     | '/alimentacao'
     | '/alunos'
     | '/auditoria'
@@ -176,13 +204,16 @@ export interface FileRouteTypes {
     | '/grade'
     | '/medidas'
     | '/pdv'
+    | '/planos'
     | '/ranking'
+    | '/recepcao'
     | '/recorrencia'
     | '/treino'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/reset-password'
     | '/alimentacao'
     | '/alunos'
     | '/auditoria'
@@ -193,7 +224,9 @@ export interface FileRouteTypes {
     | '/grade'
     | '/medidas'
     | '/pdv'
+    | '/planos'
     | '/ranking'
+    | '/recepcao'
     | '/recorrencia'
     | '/treino'
   id:
@@ -201,6 +234,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/reset-password'
     | '/_authenticated/alimentacao'
     | '/_authenticated/alunos'
     | '/_authenticated/auditoria'
@@ -211,7 +245,9 @@ export interface FileRouteTypes {
     | '/_authenticated/grade'
     | '/_authenticated/medidas'
     | '/_authenticated/pdv'
+    | '/_authenticated/planos'
     | '/_authenticated/ranking'
+    | '/_authenticated/recepcao'
     | '/_authenticated/recorrencia'
     | '/_authenticated/treino'
   fileRoutesById: FileRoutesById
@@ -220,6 +256,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -243,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/alimentacao': {
@@ -315,11 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPdvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/planos': {
+      id: '/_authenticated/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof AuthenticatedPlanosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ranking': {
       id: '/_authenticated/ranking'
       path: '/ranking'
       fullPath: '/ranking'
       preLoaderRoute: typeof AuthenticatedRankingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recepcao': {
+      id: '/_authenticated/recepcao'
+      path: '/recepcao'
+      fullPath: '/recepcao'
+      preLoaderRoute: typeof AuthenticatedRecepcaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/recorrencia': {
@@ -350,7 +408,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGradeRoute: typeof AuthenticatedGradeRoute
   AuthenticatedMedidasRoute: typeof AuthenticatedMedidasRoute
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
+  AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
+  AuthenticatedRecepcaoRoute: typeof AuthenticatedRecepcaoRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedTreinoRoute: typeof AuthenticatedTreinoRoute
 }
@@ -366,7 +426,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGradeRoute: AuthenticatedGradeRoute,
   AuthenticatedMedidasRoute: AuthenticatedMedidasRoute,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,
+  AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
+  AuthenticatedRecepcaoRoute: AuthenticatedRecepcaoRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedTreinoRoute: AuthenticatedTreinoRoute,
 }
@@ -378,17 +440,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

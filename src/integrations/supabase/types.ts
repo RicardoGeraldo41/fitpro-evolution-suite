@@ -50,6 +50,109 @@ export type Database = {
         }
         Relationships: []
       }
+      acessos: {
+        Row: {
+          academia_id: string
+          aluno_id: string | null
+          created_at: string
+          id: string
+          metodo: Database["public"]["Enums"]["metodo_acesso"]
+          motivo: string | null
+          permitido: boolean
+          registrado_por: string | null
+        }
+        Insert: {
+          academia_id: string
+          aluno_id?: string | null
+          created_at?: string
+          id?: string
+          metodo?: Database["public"]["Enums"]["metodo_acesso"]
+          motivo?: string | null
+          permitido: boolean
+          registrado_por?: string | null
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string | null
+          created_at?: string
+          id?: string
+          metodo?: Database["public"]["Enums"]["metodo_acesso"]
+          motivo?: string | null
+          permitido?: boolean
+          registrado_por?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acessos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acessos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agendamentos: {
+        Row: {
+          academia_id: string
+          aluno_id: string
+          aula_id: string
+          created_at: string
+          data: string
+          id: string
+          status: Database["public"]["Enums"]["status_agendamento"]
+          updated_at: string
+        }
+        Insert: {
+          academia_id: string
+          aluno_id: string
+          aula_id: string
+          created_at?: string
+          data: string
+          id?: string
+          status?: Database["public"]["Enums"]["status_agendamento"]
+          updated_at?: string
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string
+          aula_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          status?: Database["public"]["Enums"]["status_agendamento"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamentos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_aula_id_fkey"
+            columns: ["aula_id"]
+            isOneToOne: false
+            referencedRelation: "aulas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alimentos: {
         Row: {
           academia_id: string
@@ -86,42 +189,69 @@ export type Database = {
       alunos: {
         Row: {
           academia_id: string
+          contato_emergencia_fone: string | null
+          contato_emergencia_nome: string | null
+          cpf: string | null
           created_at: string
+          data_matricula: string
+          data_nascimento: string | null
+          endereco: string | null
           hash_biometria_digital: string | null
           id: string
           nome: string
+          observacoes_saude: string | null
           personal_id: string | null
           plano: string
           profile_id: string | null
+          status: Database["public"]["Enums"]["status_aluno"]
           status_financeiro: Database["public"]["Enums"]["status_financeiro"]
+          telefone: string | null
           updated_at: string
           valor_plano: number
           vetor_facial: string | null
         }
         Insert: {
           academia_id: string
+          contato_emergencia_fone?: string | null
+          contato_emergencia_nome?: string | null
+          cpf?: string | null
           created_at?: string
+          data_matricula?: string
+          data_nascimento?: string | null
+          endereco?: string | null
           hash_biometria_digital?: string | null
           id?: string
           nome: string
+          observacoes_saude?: string | null
           personal_id?: string | null
           plano?: string
           profile_id?: string | null
+          status?: Database["public"]["Enums"]["status_aluno"]
           status_financeiro?: Database["public"]["Enums"]["status_financeiro"]
+          telefone?: string | null
           updated_at?: string
           valor_plano?: number
           vetor_facial?: string | null
         }
         Update: {
           academia_id?: string
+          contato_emergencia_fone?: string | null
+          contato_emergencia_nome?: string | null
+          cpf?: string | null
           created_at?: string
+          data_matricula?: string
+          data_nascimento?: string | null
+          endereco?: string | null
           hash_biometria_digital?: string | null
           id?: string
           nome?: string
+          observacoes_saude?: string | null
           personal_id?: string | null
           plano?: string
           profile_id?: string | null
+          status?: Database["public"]["Enums"]["status_aluno"]
           status_financeiro?: Database["public"]["Enums"]["status_financeiro"]
+          telefone?: string | null
           updated_at?: string
           valor_plano?: number
           vetor_facial?: string | null
@@ -186,7 +316,10 @@ export type Database = {
       aulas: {
         Row: {
           academia_id: string
+          capacidade: number
           created_at: string
+          dia_semana: number
+          duracao_min: number
           horario: string
           id: string
           nome: string
@@ -196,7 +329,10 @@ export type Database = {
         }
         Insert: {
           academia_id: string
+          capacidade?: number
           created_at?: string
+          dia_semana?: number
+          duracao_min?: number
           horario: string
           id?: string
           nome: string
@@ -206,7 +342,10 @@ export type Database = {
         }
         Update: {
           academia_id?: string
+          capacidade?: number
           created_at?: string
+          dia_semana?: number
+          duracao_min?: number
           horario?: string
           id?: string
           nome?: string
@@ -380,6 +519,70 @@ export type Database = {
           },
         ]
       }
+      matriculas: {
+        Row: {
+          academia_id: string
+          aluno_id: string
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          dia_vencimento: number
+          id: string
+          plano_id: string | null
+          status: Database["public"]["Enums"]["status_matricula"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          academia_id: string
+          aluno_id: string
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          dia_vencimento?: number
+          id?: string
+          plano_id?: string | null
+          status?: Database["public"]["Enums"]["status_matricula"]
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          dia_vencimento?: number
+          id?: string
+          plano_id?: string | null
+          status?: Database["public"]["Enums"]["status_matricula"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matriculas_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matriculas_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matriculas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medidas_corporais: {
         Row: {
           academia_id: string
@@ -444,6 +647,111 @@ export type Database = {
             columns: ["aluno_id"]
             isOneToOne: false
             referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagamentos: {
+        Row: {
+          academia_id: string
+          aluno_id: string
+          created_at: string
+          created_by: string | null
+          forma: Database["public"]["Enums"]["forma_pagamento"]
+          id: string
+          observacao: string | null
+          pago_em: string
+          recorrencia_id: string | null
+          valor: number
+        }
+        Insert: {
+          academia_id: string
+          aluno_id: string
+          created_at?: string
+          created_by?: string | null
+          forma?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacao?: string | null
+          pago_em?: string
+          recorrencia_id?: string | null
+          valor: number
+        }
+        Update: {
+          academia_id?: string
+          aluno_id?: string
+          created_at?: string
+          created_by?: string | null
+          forma?: Database["public"]["Enums"]["forma_pagamento"]
+          id?: string
+          observacao?: string | null
+          pago_em?: string
+          recorrencia_id?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_recorrencia_id_fkey"
+            columns: ["recorrencia_id"]
+            isOneToOne: false
+            referencedRelation: "recorrencias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos: {
+        Row: {
+          academia_id: string
+          ativo: boolean
+          created_at: string
+          duracao_meses: number
+          id: string
+          inclui_aulas: boolean
+          nome: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          academia_id: string
+          ativo?: boolean
+          created_at?: string
+          duracao_meses?: number
+          id?: string
+          inclui_aulas?: boolean
+          nome: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          academia_id?: string
+          ativo?: boolean
+          created_at?: string
+          duracao_meses?: number
+          id?: string
+          inclui_aulas?: boolean
+          nome?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planos_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
             referencedColumns: ["id"]
           },
         ]
@@ -779,7 +1087,18 @@ export type Database = {
     }
     Enums: {
       app_role: "DONO" | "ADMIN" | "PERSONAL" | "ALUNO"
+      forma_pagamento:
+        | "DINHEIRO"
+        | "PIX"
+        | "DEBITO"
+        | "CREDITO"
+        | "BOLETO"
+        | "CORTESIA"
+      metodo_acesso: "DIGITAL" | "FACIAL" | "MANUAL" | "QRCODE"
+      status_agendamento: "CONFIRMADO" | "CANCELADO" | "PRESENTE" | "FALTA"
+      status_aluno: "ATIVO" | "TRANCADO" | "CANCELADO"
       status_financeiro: "ADIMPLENTE" | "INADIMPLENTE"
+      status_matricula: "ATIVA" | "TRANCADA" | "CANCELADA" | "VENCIDA"
       status_recorrencia: "PENDENTE" | "PAGO" | "ATRASADO" | "CANCELADO"
     }
     CompositeTypes: {
@@ -909,7 +1228,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["DONO", "ADMIN", "PERSONAL", "ALUNO"],
+      forma_pagamento: [
+        "DINHEIRO",
+        "PIX",
+        "DEBITO",
+        "CREDITO",
+        "BOLETO",
+        "CORTESIA",
+      ],
+      metodo_acesso: ["DIGITAL", "FACIAL", "MANUAL", "QRCODE"],
+      status_agendamento: ["CONFIRMADO", "CANCELADO", "PRESENTE", "FALTA"],
+      status_aluno: ["ATIVO", "TRANCADO", "CANCELADO"],
       status_financeiro: ["ADIMPLENTE", "INADIMPLENTE"],
+      status_matricula: ["ATIVA", "TRANCADA", "CANCELADA", "VENCIDA"],
       status_recorrencia: ["PENDENTE", "PAGO", "ATRASADO", "CANCELADO"],
     },
   },

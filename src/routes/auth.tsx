@@ -17,6 +17,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const [recuperando, setRecuperando] = useState(false);
   const navigate = useNavigate();
   const { session, refresh } = useSession();
   const seedFn = useServerFn(seedFitProDemoUsers);
@@ -52,6 +53,18 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   }
 
+  async function recuperarSenha() {
+    const alvo = email.trim().toLowerCase();
+    if (!alvo) { setErr("Informe seu e-mail para receber o link de recuperação."); return; }
+    setErr(null);
+    setRecuperando(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(alvo, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setRecuperando(false);
+    setErr(error ? error.message : "Se o e-mail existir, enviamos um link de recuperação.");
+  }
+
   return (
     <div className="fp-screen fp-login">
       <form className="fp-glass fp-auth-card" onSubmit={handleLogin}>
@@ -81,6 +94,10 @@ function AuthPage() {
           {loading ? "Autenticando..." : "Acessar Plataforma"}
         </button>
         {err && <p className="fp-error">{err}</p>}
+        <button type="button" className="fp-btn fp-btn-ghost" style={{ marginTop: 8 }}
+          onClick={recuperarSenha} disabled={recuperando}>
+          {recuperando ? "Enviando..." : "Esqueci minha senha"}
+        </button>
         <div className="fp-glass-inner" style={{ marginTop: 14, padding: 12 }}>
           <p style={{ fontSize: 11, color: "var(--fp-muted)", marginBottom: 6 }}>
             Contas demo (auto-criadas):
