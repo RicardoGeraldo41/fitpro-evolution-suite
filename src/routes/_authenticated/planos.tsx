@@ -120,7 +120,7 @@ function PlanosPage() {
     load();
   }
 
-  async function mudarStatus(m: Matricula, status: string) {
+  async function mudarStatus(m: Matricula, status: "ATIVA" | "TRANCADA" | "CANCELADA") {
     const { error } = await supabase.from("matriculas").update({ status }).eq("id", m.id);
     if (error) { toast.error(error.message); return; }
     const novoStatusAluno = status === "CANCELADA" ? "CANCELADO" : status === "TRANCADA" ? "TRANCADO" : "ATIVO";

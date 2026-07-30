@@ -22,6 +22,7 @@ import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
 import { Route as AuthenticatedMedidasRouteImport } from './routes/_authenticated/medidas'
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
+import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated/planos'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedRecepcaoRouteImport } from './routes/_authenticated/recepcao'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
@@ -92,6 +93,11 @@ const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
   path: '/pdv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanosRoute = AuthenticatedPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
   id: '/ranking',
   path: '/ranking',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/grade': typeof AuthenticatedGradeRoute
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/grade': typeof AuthenticatedGradeRoute
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planos': typeof AuthenticatedPlanosRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/grade': typeof AuthenticatedGradeRoute
   '/_authenticated/medidas': typeof AuthenticatedMedidasRoute
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
+  '/_authenticated/planos': typeof AuthenticatedPlanosRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/recepcao': typeof AuthenticatedRecepcaoRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/grade'
     | '/medidas'
     | '/pdv'
+    | '/planos'
     | '/ranking'
     | '/recepcao'
     | '/recorrencia'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/grade'
     | '/medidas'
     | '/pdv'
+    | '/planos'
     | '/ranking'
     | '/recepcao'
     | '/recorrencia'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/_authenticated/grade'
     | '/_authenticated/medidas'
     | '/_authenticated/pdv'
+    | '/_authenticated/planos'
     | '/_authenticated/ranking'
     | '/_authenticated/recepcao'
     | '/_authenticated/recorrencia'
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPdvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/planos': {
+      id: '/_authenticated/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof AuthenticatedPlanosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ranking': {
       id: '/_authenticated/ranking'
       path: '/ranking'
@@ -369,6 +388,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGradeRoute: typeof AuthenticatedGradeRoute
   AuthenticatedMedidasRoute: typeof AuthenticatedMedidasRoute
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
+  AuthenticatedPlanosRoute: typeof AuthenticatedPlanosRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedRecepcaoRoute: typeof AuthenticatedRecepcaoRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
@@ -386,6 +406,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGradeRoute: AuthenticatedGradeRoute,
   AuthenticatedMedidasRoute: AuthenticatedMedidasRoute,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,
+  AuthenticatedPlanosRoute: AuthenticatedPlanosRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedRecepcaoRoute: AuthenticatedRecepcaoRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
