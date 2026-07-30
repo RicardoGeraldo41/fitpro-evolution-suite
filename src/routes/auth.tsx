@@ -94,6 +94,10 @@ function AuthPage() {
           {loading ? "Autenticando..." : "Acessar Plataforma"}
         </button>
         {err && <p className="fp-error">{err}</p>}
+        <button type="button" className="fp-btn fp-btn-ghost" style={{ marginTop: 8 }}
+          onClick={recuperarSenha} disabled={recuperando}>
+          {recuperando ? "Enviando..." : "Esqueci minha senha"}
+        </button>
         <div className="fp-glass-inner" style={{ marginTop: 14, padding: 12 }}>
           <p style={{ fontSize: 11, color: "var(--fp-muted)", marginBottom: 6 }}>
             Contas demo (auto-criadas):
