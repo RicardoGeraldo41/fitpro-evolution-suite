@@ -23,6 +23,7 @@ import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedMedidasRouteImport } from './routes/_authenticated/medidas'
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
+import { Route as AuthenticatedRecepcaoRouteImport } from './routes/_authenticated/recepcao'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
 import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
 
@@ -96,6 +97,11 @@ const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
   path: '/ranking',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRecepcaoRoute = AuthenticatedRecepcaoRouteImport.update({
+  id: '/recepcao',
+  path: '/recepcao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRecorrenciaRoute =
   AuthenticatedRecorrenciaRouteImport.update({
     id: '/recorrencia',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/medidas': typeof AuthenticatedMedidasRoute
   '/pdv': typeof AuthenticatedPdvRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated/medidas': typeof AuthenticatedMedidasRoute
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
+  '/_authenticated/recepcao': typeof AuthenticatedRecepcaoRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
   '/_authenticated/treino': typeof AuthenticatedTreinoRoute
 }
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/medidas'
     | '/pdv'
     | '/ranking'
+    | '/recepcao'
     | '/recorrencia'
     | '/treino'
   fileRoutesByTo: FileRoutesByTo
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/medidas'
     | '/pdv'
     | '/ranking'
+    | '/recepcao'
     | '/recorrencia'
     | '/treino'
   id:
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/_authenticated/medidas'
     | '/_authenticated/pdv'
     | '/_authenticated/ranking'
+    | '/_authenticated/recepcao'
     | '/_authenticated/recorrencia'
     | '/_authenticated/treino'
   fileRoutesById: FileRoutesById
@@ -322,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRankingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recepcao': {
+      id: '/_authenticated/recepcao'
+      path: '/recepcao'
+      fullPath: '/recepcao'
+      preLoaderRoute: typeof AuthenticatedRecepcaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recorrencia': {
       id: '/_authenticated/recorrencia'
       path: '/recorrencia'
@@ -351,6 +370,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMedidasRoute: typeof AuthenticatedMedidasRoute
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
+  AuthenticatedRecepcaoRoute: typeof AuthenticatedRecepcaoRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
   AuthenticatedTreinoRoute: typeof AuthenticatedTreinoRoute
 }
@@ -367,6 +387,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMedidasRoute: AuthenticatedMedidasRoute,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
+  AuthenticatedRecepcaoRoute: AuthenticatedRecepcaoRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
   AuthenticatedTreinoRoute: AuthenticatedTreinoRoute,
 }
