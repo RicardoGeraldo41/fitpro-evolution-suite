@@ -53,6 +53,18 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   }
 
+  async function recuperarSenha() {
+    const alvo = email.trim().toLowerCase();
+    if (!alvo) { setErr("Informe seu e-mail para receber o link de recuperação."); return; }
+    setErr(null);
+    setRecuperando(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(alvo, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setRecuperando(false);
+    setErr(error ? error.message : "Se o e-mail existir, enviamos um link de recuperação.");
+  }
+
   return (
     <div className="fp-screen fp-login">
       <form className="fp-glass fp-auth-card" onSubmit={handleLogin}>
