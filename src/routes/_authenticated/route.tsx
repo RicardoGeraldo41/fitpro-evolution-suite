@@ -35,6 +35,8 @@ const NAV: NavItem[] = [
 function AuthLayout() {
   const { session, loading, signOut } = useSession();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [menuAberto, setMenuAberto] = useState(false);
 
   useEffect(() => {
     document.body.classList.add("fp-body");
@@ -44,6 +46,8 @@ function AuthLayout() {
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth", replace: true });
   }, [loading, session, navigate]);
+
+  useEffect(() => { setMenuAberto(false); }, [pathname]);
 
   if (loading || !session) {
     return (
@@ -60,22 +64,31 @@ function AuthLayout() {
 
   return (
     <div className="fp-screen">
-      <aside className="fp-sidebar fp-glass">
+      <header className="fp-topbar fp-glass">
+        <button className="fp-burger" aria-label="Abrir menu" onClick={() => setMenuAberto((v) => !v)}>
+          ☰
+        </button>
+        <h2 className="fp-brand-mini" style={{ padding: 0 }}>FitPro <span>GYM2</span></h2>
+      </header>
+
+      {menuAberto && <div className="fp-backdrop" onClick={() => setMenuAberto(false)} />}
+
+      <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")}>
         <h2 className="fp-brand-mini">FitPro <span>GYM2</span></h2>
         <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
           {session.academia_nome}
         </p>
         <nav className="fp-nav">
           {items.map((it) => (
-            <Link key={it.to} to={it.to} activeProps={{ className: "active" }}>
+            <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
               {it.label}
             </Link>
           ))}
         </nav>
         <div className="fp-user-box">
           <div className="fp-avatar">{(session.nome || "?").charAt(0)}</div>
-          <div style={{ flex: 1 }}>
-            <p>{session.nome}</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{session.nome}</p>
             <p className="fp-role-tag">{session.role}</p>
           </div>
           <button className="fp-btn fp-btn-ghost" onClick={signOut}>
@@ -89,3 +102,4 @@ function AuthLayout() {
     </div>
   );
 }
+
