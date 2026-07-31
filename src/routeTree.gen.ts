@@ -18,6 +18,7 @@ import { Route as AuthenticatedAlunosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedAvaliacaoRouteImport } from './routes/_authenticated/avaliacao'
 import { Route as AuthenticatedBiometriaRouteImport } from './routes/_authenticated/biometria'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEvolucaoRouteImport } from './routes/_authenticated/evolucao'
 import { Route as AuthenticatedGradeRouteImport } from './routes/_authenticated/grade'
@@ -27,6 +28,7 @@ import { Route as AuthenticatedPlanosRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedRecepcaoRouteImport } from './routes/_authenticated/recepcao'
 import { Route as AuthenticatedRecorrenciaRouteImport } from './routes/_authenticated/recorrencia'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedTreinoRouteImport } from './routes/_authenticated/treino'
 
 const IndexRoute = IndexRouteImport.update({
@@ -74,6 +76,12 @@ const AuthenticatedBiometriaRoute = AuthenticatedBiometriaRouteImport.update({
   path: '/biometria',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -120,6 +128,11 @@ const AuthenticatedRecorrenciaRoute =
     path: '/recorrencia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTreinoRoute = AuthenticatedTreinoRouteImport.update({
   id: '/treino',
   path: '/treino',
@@ -135,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/evolucao': typeof AuthenticatedEvolucaoRoute
   '/grade': typeof AuthenticatedGradeRoute
@@ -144,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/ranking': typeof AuthenticatedRankingRoute
   '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
 export interface FileRoutesByTo {
@@ -155,6 +170,7 @@ export interface FileRoutesByTo {
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/biometria': typeof AuthenticatedBiometriaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/evolucao': typeof AuthenticatedEvolucaoRoute
   '/grade': typeof AuthenticatedGradeRoute
@@ -164,6 +180,7 @@ export interface FileRoutesByTo {
   '/ranking': typeof AuthenticatedRankingRoute
   '/recepcao': typeof AuthenticatedRecepcaoRoute
   '/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/treino': typeof AuthenticatedTreinoRoute
 }
 export interface FileRoutesById {
@@ -177,6 +194,7 @@ export interface FileRoutesById {
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/avaliacao': typeof AuthenticatedAvaliacaoRoute
   '/_authenticated/biometria': typeof AuthenticatedBiometriaRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/evolucao': typeof AuthenticatedEvolucaoRoute
   '/_authenticated/grade': typeof AuthenticatedGradeRoute
@@ -186,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/recepcao': typeof AuthenticatedRecepcaoRoute
   '/_authenticated/recorrencia': typeof AuthenticatedRecorrenciaRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/treino': typeof AuthenticatedTreinoRoute
 }
 export interface FileRouteTypes {
@@ -199,6 +218,7 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/avaliacao'
     | '/biometria'
+    | '/configuracoes'
     | '/dashboard'
     | '/evolucao'
     | '/grade'
@@ -208,6 +228,7 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/recepcao'
     | '/recorrencia'
+    | '/relatorios'
     | '/treino'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,6 +240,7 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/avaliacao'
     | '/biometria'
+    | '/configuracoes'
     | '/dashboard'
     | '/evolucao'
     | '/grade'
@@ -228,6 +250,7 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/recepcao'
     | '/recorrencia'
+    | '/relatorios'
     | '/treino'
   id:
     | '__root__'
@@ -240,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/auditoria'
     | '/_authenticated/avaliacao'
     | '/_authenticated/biometria'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/dashboard'
     | '/_authenticated/evolucao'
     | '/_authenticated/grade'
@@ -249,6 +273,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ranking'
     | '/_authenticated/recepcao'
     | '/_authenticated/recorrencia'
+    | '/_authenticated/relatorios'
     | '/_authenticated/treino'
   fileRoutesById: FileRoutesById
 }
@@ -324,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBiometriaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -387,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRecorrenciaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/treino': {
       id: '/_authenticated/treino'
       path: '/treino'
@@ -403,6 +442,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedAvaliacaoRoute: typeof AuthenticatedAvaliacaoRoute
   AuthenticatedBiometriaRoute: typeof AuthenticatedBiometriaRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEvolucaoRoute: typeof AuthenticatedEvolucaoRoute
   AuthenticatedGradeRoute: typeof AuthenticatedGradeRoute
@@ -412,6 +452,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedRecepcaoRoute: typeof AuthenticatedRecepcaoRoute
   AuthenticatedRecorrenciaRoute: typeof AuthenticatedRecorrenciaRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedTreinoRoute: typeof AuthenticatedTreinoRoute
 }
 
@@ -421,6 +462,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedAvaliacaoRoute: AuthenticatedAvaliacaoRoute,
   AuthenticatedBiometriaRoute: AuthenticatedBiometriaRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEvolucaoRoute: AuthenticatedEvolucaoRoute,
   AuthenticatedGradeRoute: AuthenticatedGradeRoute,
@@ -430,6 +472,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedRecepcaoRoute: AuthenticatedRecepcaoRoute,
   AuthenticatedRecorrenciaRoute: AuthenticatedRecorrenciaRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedTreinoRoute: AuthenticatedTreinoRoute,
 }
 
