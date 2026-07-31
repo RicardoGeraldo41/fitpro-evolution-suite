@@ -1,5 +1,5 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useSession, type Role } from "@/lib/fitpro/session";
 import "@/styles/fitpro.css";
 
@@ -17,6 +17,7 @@ const NAV: NavItem[] = [
   { to: "/biometria", label: "Biometria", roles: ["DONO", "ADMIN"] },
   { to: "/pdv", label: "PDV Balcão", roles: ["DONO", "ADMIN"] },
   { to: "/recorrencia", label: "Financeiro", roles: ["DONO", "ADMIN"] },
+  { to: "/relatorios", label: "Relatórios", roles: ["DONO", "ADMIN"] },
   { to: "/treino", label: "Modo Em Treino", roles: ["ALUNO"] },
   { to: "/avaliacao", label: "Avaliação", roles: ["DONO", "PERSONAL"] },
   { to: "/medidas", label: "Medidas & Fotos", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
@@ -26,8 +27,10 @@ const NAV: NavItem[] = [
   { to: "/planos", label: "Minha Matrícula", roles: ["ALUNO"] },
   { to: "/evolucao", label: "Minha Evolução", roles: ["ALUNO"] },
   { to: "/ranking", label: "Ranking XP", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"] },
+  { to: "/configuracoes", label: "Configurações & Equipe", roles: ["DONO", "ADMIN"] },
   { to: "/auditoria", label: "Auditoria", roles: ["DONO", "ADMIN"] },
 ];
+
 
 function AuthLayout() {
   const { session, loading, signOut } = useSession();
