@@ -48,7 +48,7 @@ export const cadastrarPerfil = createServerFn({ method: "POST" })
       const { data: ac } = await supabaseAdmin
         .from("academias")
         .select("id")
-        .eq("id", academia_id)
+        .eq("id", academia_id!)
         .maybeSingle();
       if (!ac) throw new Error("Academia inválida.");
     }
