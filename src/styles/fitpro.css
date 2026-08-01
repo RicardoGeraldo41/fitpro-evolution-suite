@@ -422,3 +422,56 @@ body.fp-body::after {
   .fp-view-header .fp-btn, .fp-serie-row .fp-btn { width: auto; }
   .fp-cards-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---------- Efeitos profissionais extras ---------- */
+.fp-glass { position: relative; transition: box-shadow 0.3s ease, transform 0.3s ease; }
+.fp-glass::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(56, 189, 248, 0.22), transparent 40%, rgba(37, 99, 235, 0.18));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  pointer-events: none;
+  opacity: 0.8;
+}
+.fp-kpi {
+  position: relative; overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.fp-kpi:hover {
+  transform: translateY(-3px);
+  border-color: var(--fp-neon);
+  box-shadow: 0 16px 34px -18px rgba(56, 189, 248, 0.85);
+}
+.fp-kpi::after {
+  content: "";
+  position: absolute; inset: auto -30% -60% auto;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22), transparent 70%);
+  pointer-events: none;
+}
+.fp-view { animation: fpRise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fp-table tbody tr { transition: background 0.2s ease; }
+.fp-nav a { position: relative; }
+.fp-nav a.active::before {
+  content: "";
+  position: absolute; left: 0; top: 18%; bottom: 18%;
+  width: 3px; border-radius: 3px;
+  background: linear-gradient(180deg, var(--fp-neon3), var(--fp-neon));
+  box-shadow: 0 0 12px var(--fp-neon);
+}
+.fp-avatar { box-shadow: 0 0 18px -4px rgba(56, 189, 248, 0.9); }
+.fp-btn:active:not(:disabled) { transform: scale(0.98); }
+.fp-input:hover, .fp-select:hover, .fp-textarea:hover { border-color: rgba(56, 189, 248, 0.5); }
+.fp-prod-card:hover { box-shadow: 0 14px 30px -18px rgba(56, 189, 248, 0.9); }
+@media (max-width: 520px) {
+  .fp-role-grid { grid-template-columns: 1fr; }
+  .fp-grid-2 { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
