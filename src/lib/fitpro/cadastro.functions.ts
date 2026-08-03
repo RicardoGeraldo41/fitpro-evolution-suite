@@ -59,7 +59,14 @@ export const cadastrarPerfil = createServerFn({ method: "POST" })
       email_confirm: true,
       user_metadata: { nome: data.nome },
     });
-    if (authErr || !created?.user) throw new Error(authErr?.message ?? "Falha ao criar conta.");
+    if (authErr || !created?.user) {
+      const msg = authErr?.message ?? "Falha ao criar conta.";
+      throw new Error(
+        /already|registered|exists/i.test(msg)
+          ? "Este e-mail já possui cadastro. Use a aba Entrar."
+          : msg,
+      );
+    }
     const uid = created.user.id;
 
     const { error: pErr } = await supabaseAdmin
@@ -71,7 +78,7 @@ export const cadastrarPerfil = createServerFn({ method: "POST" })
       .from("user_roles")
       .upsert(
         { user_id: uid, role: data.role, academia_id: academia_id! },
-        { onConflict: "user_id,role" },
+        { onConflict: "user_id,role,academia_id" },
       );
     if (rErr) throw new Error(rErr.message);
 

@@ -28,8 +28,6 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Papel = "DONO" | "PERSONAL" | "ALUNO";
-
 function AuthPage() {
   const [aba, setAba] = useState<"entrar" | "cadastrar">("entrar");
   const [recuperando, setRecuperando] = useState(false);
@@ -47,7 +45,7 @@ function AuthPage() {
 
   // cadastro
   const [nome, setNome] = useState("");
-  const [papel, setPapel] = useState<Papel>("ALUNO");
+  const [novaUnidade, setNovaUnidade] = useState(false);
   const [academiaId, setAcademiaId] = useState("");
   const [academiaNome, setAcademiaNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -65,6 +63,7 @@ function AuthPage() {
       .then((lista) => {
         setAcademias(lista);
         setAcademiaId((atual) => atual || lista[0]?.id || "");
+        setNovaUnidade(lista.length === 0);
       })
       .catch(() => {});
   }, [aba, listarFn]);
@@ -99,6 +98,19 @@ function AuthPage() {
       setErr("A senha deve ter no mínimo 8 caracteres.");
       return;
     }
+    if (!nome.trim()) {
+      setErr("Informe seu nome completo.");
+      return;
+    }
+    const papel = novaUnidade ? "DONO" : "ALUNO";
+    if (papel === "DONO" && academiaNome.trim().length < 2) {
+      setErr("Informe o nome da nova academia.");
+      return;
+    }
+    if (papel !== "DONO" && !academiaId) {
+      setErr("Selecione a academia.");
+      return;
+    }
     setLoading(true);
     try {
       await cadastrarFn({
@@ -107,7 +119,7 @@ function AuthPage() {
           email: email.trim().toLowerCase(),
           senha: password,
           role: papel,
-          academia_id: papel === "DONO" ? undefined : academiaId || undefined,
+          academia_id: papel === "DONO" ? undefined : academiaId,
           academia_nome: papel === "DONO" ? academiaNome.trim() : undefined,
           telefone: telefone.trim() || undefined,
           cpf: cpf.trim() || undefined,
@@ -142,12 +154,6 @@ function AuthPage() {
     if (error) setErr(error.message);
     else setOk("Se o e-mail existir, enviamos um link de recuperação.");
   }
-
-  const papeis: { v: Papel; t: string; d: string }[] = [
-    { v: "DONO", t: "Dono", d: "Abro uma nova unidade" },
-    { v: "PERSONAL", t: "Personal", d: "Treino meus alunos" },
-    { v: "ALUNO", t: "Aluno", d: "Treino na academia" },
-  ];
 
   return (
     <div className="fp-screen fp-login">
@@ -229,21 +235,6 @@ function AuthPage() {
           </form>
         ) : (
           <form onSubmit={handleCadastro} className="fp-fade">
-            <label className="fp-label">Perfil de acesso</label>
-            <div className="fp-role-grid">
-              {papeis.map((p) => (
-                <button
-                  type="button"
-                  key={p.v}
-                  className={"fp-role-card" + (papel === p.v ? " active" : "")}
-                  onClick={() => setPapel(p.v)}
-                >
-                  <strong>{p.t}</strong>
-                  <span>{p.d}</span>
-                </button>
-              ))}
-            </div>
-
             <label className="fp-label">Nome completo</label>
             <input
               className="fp-input"
@@ -253,7 +244,7 @@ function AuthPage() {
               required
             />
 
-            {papel === "DONO" ? (
+            {novaUnidade ? (
               <>
                 <label className="fp-label">Nome da academia</label>
                 <input
@@ -263,6 +254,16 @@ function AuthPage() {
                   placeholder="Ex.: FitPro Centro"
                   required
                 />
+                {academias.length > 0 && (
+                  <button
+                    type="button"
+                    className="fp-btn fp-btn-ghost"
+                    style={{ marginTop: 8 }}
+                    onClick={() => setNovaUnidade(false)}
+                  >
+                    Já existe minha academia
+                  </button>
+                )}
               </>
             ) : (
               <>
@@ -280,10 +281,18 @@ function AuthPage() {
                     </option>
                   ))}
                 </select>
+                <button
+                  type="button"
+                  className="fp-btn fp-btn-ghost"
+                  style={{ marginTop: 8 }}
+                  onClick={() => setNovaUnidade(true)}
+                >
+                  Cadastrar uma nova academia
+                </button>
               </>
             )}
 
-            {papel === "ALUNO" && (
+            {!novaUnidade && (
               <div className="fp-grid-2">
                 <div>
                   <label className="fp-label">Telefone</label>
