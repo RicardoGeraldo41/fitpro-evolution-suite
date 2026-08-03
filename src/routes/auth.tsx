@@ -35,7 +35,7 @@ function AuthPage() {
   const [recuperando, setRecuperando] = useState(false);
   const navigate = useNavigate();
   const { session, refresh } = useSession();
-  const seedFn = useServerFn(seedFitProDemoUsers);
+  
   const cadastrarFn = useServerFn(cadastrarPerfil);
   const listarFn = useServerFn(listarAcademiasPublicas);
 
@@ -56,9 +56,8 @@ function AuthPage() {
 
   useEffect(() => {
     document.body.classList.add("fp-body");
-    seedFn({}).catch(() => {});
     return () => document.body.classList.remove("fp-body");
-  }, [seedFn]);
+  }, []);
 
   useEffect(() => {
     if (aba !== "cadastrar") return;
