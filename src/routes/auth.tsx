@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { seedFitProDemoUsers } from "@/lib/fitpro-seed.functions";
+
 import { cadastrarPerfil, listarAcademiasPublicas } from "@/lib/fitpro/cadastro.functions";
 import { useSession } from "@/lib/fitpro/session";
 import "@/styles/fitpro.css";
@@ -35,7 +35,7 @@ function AuthPage() {
   const [recuperando, setRecuperando] = useState(false);
   const navigate = useNavigate();
   const { session, refresh } = useSession();
-  const seedFn = useServerFn(seedFitProDemoUsers);
+  
   const cadastrarFn = useServerFn(cadastrarPerfil);
   const listarFn = useServerFn(listarAcademiasPublicas);
 
@@ -56,9 +56,8 @@ function AuthPage() {
 
   useEffect(() => {
     document.body.classList.add("fp-body");
-    seedFn({}).catch(() => {});
     return () => document.body.classList.remove("fp-body");
-  }, [seedFn]);
+  }, []);
 
   useEffect(() => {
     if (aba !== "cadastrar") return;
@@ -340,21 +339,9 @@ function AuthPage() {
 
         {err && <p className="fp-error">{err}</p>}
         {ok && <p className="fp-ok-msg">{ok}</p>}
-
-        <div className="fp-glass-inner" style={{ marginTop: 14, padding: 12 }}>
-          <p style={{ fontSize: 11, color: "var(--fp-muted)", marginBottom: 6 }}>
-            Contas demo (auto-criadas):
-          </p>
-          <p style={{ fontSize: 11, fontFamily: "monospace", lineHeight: 1.7 }}>
-            dono@fitpro.local · FitPro@Dono2026
-            <br />
-            admin@fitpro.local · FitPro@Admin2026
-            <br />
-            personal@fitpro.local · FitPro@Personal2026
-            <br />
-            aluno@fitpro.local · FitPro@Aluno2026
-          </p>
-        </div>
+        <p style={{ fontSize: 11, color: "var(--fp-muted)", marginTop: 14, textAlign: "center" }}>
+          Cada usuário cria seu próprio perfil. Não há contas pré-criadas.
+        </p>
       </div>
     </div>
   );
