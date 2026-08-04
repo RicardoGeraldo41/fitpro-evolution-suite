@@ -32,6 +32,7 @@ type Aluno = {
 };
 
 function BiometriaPage() {
+  const { session } = useSession();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [selId, setSelId] = useState<string>("");
   const [digitalMsg, setDigitalMsg] = useState<string | null>(null);
