@@ -211,6 +211,83 @@ body.fp-body::after {
 .fp-btn-ghost:hover { color: var(--fp-neon); }
 .fp-error { color: var(--fp-danger); font-size: 13px; margin-top: 8px; }
 
+/* ---------- Componentes reutilizáveis ---------- */
+.fp-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: var(--fp-muted);
+  font-size: 14px;
+}
+.fp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(56, 189, 248, 0.15);
+  border-top-color: var(--fp-neon);
+  border-radius: 50%;
+  animation: fp-spin 0.8s linear infinite;
+}
+@keyframes fp-spin { to { transform: rotate(360deg); } }
+
+.fp-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 20px;
+  color: var(--fp-text);
+}
+.fp-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--fp-neon);
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.fp-empty-title { font-size: 16px; font-weight: 600; margin: 0; }
+.fp-empty-description { font-size: 13px; color: var(--fp-muted); margin: 0; max-width: 320px; }
+.fp-empty-action { margin-top: 8px; }
+
+.fp-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: calc(100% - 32px);
+}
+.fp-dialog::backdrop { background: rgba(2, 6, 23, 0.75); backdrop-filter: blur(4px); }
+.fp-dialog-card {
+  background: var(--fp-surface);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.5);
+}
+.fp-dialog-title { font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+.fp-dialog-message { font-size: 14px; color: var(--fp-muted); margin: 0 0 20px; line-height: 1.5; }
+.fp-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.fp-data-table-wrap { width: 100%; }
+.fp-table-search { margin-bottom: 12px; max-width: 320px; }
+.fp-table-scroll { overflow-x: auto; }
+.fp-empty-table { padding: 24px; text-align: center; color: var(--fp-muted); font-size: 13px; }
+
+.fp-btn-danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: white;
+  border: none;
+}
+.fp-btn-danger:hover { box-shadow: 0 10px 24px -10px rgba(239, 68, 68, 0.6); }
+
 .fp-sidebar {
   width: 260px;
   margin: 18px;
