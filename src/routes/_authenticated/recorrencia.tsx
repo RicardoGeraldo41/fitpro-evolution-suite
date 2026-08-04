@@ -50,17 +50,18 @@ function RecorrenciaPage() {
   const [baixa, setBaixa] = useState<Rec | null>(null);
 
   const load = useCallback(async () => {
+    if (!session?.academia_id) return;
     const [{ data: a }, { data: m }, { data: r }, { data: p }] = await Promise.all([
-      supabase.from("alunos").select("id,nome,plano,valor_plano,status").order("nome"),
-      supabase.from("matriculas").select("id,aluno_id,valor,dia_vencimento,status").eq("status", "ATIVA"),
-      supabase.from("recorrencias").select("*").order("vencimento", { ascending: false }),
-      supabase.from("pagamentos").select("id,aluno_id,valor,forma,pago_em").order("pago_em", { ascending: false }).limit(50),
+      supabase.from("alunos").select("id,nome,plano,valor_plano,status").eq("academia_id", session.academia_id).order("nome"),
+      supabase.from("matriculas").select("id,aluno_id,valor,dia_vencimento,status").eq("academia_id", session.academia_id).eq("status", "ATIVA"),
+      supabase.from("recorrencias").select("*").eq("academia_id", session.academia_id).order("vencimento", { ascending: false }),
+      supabase.from("pagamentos").select("id,aluno_id,valor,forma,pago_em").eq("academia_id", session.academia_id).order("pago_em", { ascending: false }).limit(50),
     ]);
     setAlunos((a ?? []) as Aluno[]);
     setMatriculas((m ?? []) as Matricula[]);
     setRecs((r ?? []) as Rec[]);
     setPagamentos((p ?? []) as Pagamento[]);
-  }, []);
+  }, [session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

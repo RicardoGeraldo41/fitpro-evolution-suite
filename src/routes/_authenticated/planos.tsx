@@ -56,15 +56,16 @@ function PlanosPage() {
   const [mat, setMat] = useState({ aluno_id: "", plano_id: "", dia_vencimento: "10" });
 
   const load = useCallback(async () => {
+    if (!session?.academia_id) return;
     const [{ data: p }, { data: a }, { data: m }] = await Promise.all([
-      supabase.from("planos").select("*").order("valor"),
-      supabase.from("alunos").select("id,nome").order("nome"),
-      supabase.from("matriculas").select("*").order("created_at", { ascending: false }),
+      supabase.from("planos").select("*").eq("academia_id", session.academia_id).order("valor"),
+      supabase.from("alunos").select("id,nome").eq("academia_id", session.academia_id).order("nome"),
+      supabase.from("matriculas").select("*").eq("academia_id", session.academia_id).order("created_at", { ascending: false }),
     ]);
     setPlanos((p ?? []) as Plano[]);
     setAlunos((a ?? []) as Aluno[]);
     setMatriculas((m ?? []) as Matricula[]);
-  }, []);
+  }, [session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

@@ -62,18 +62,20 @@ function RecepcaoPage() {
   const [carregando, setCarregando] = useState(true);
 
   const load = useCallback(async () => {
+    if (!session?.academia_id) return;
     setCarregando(true);
     const [{ data: al }, { data: ac }] = await Promise.all([
       supabase
         .from("alunos")
         .select("id,nome,cpf,telefone,status,status_financeiro,hash_biometria_digital,vetor_facial")
+        .eq("academia_id", session.academia_id)
         .order("nome"),
-      supabase.from("acessos").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("acessos").select("*").eq("academia_id", session.academia_id).order("created_at", { ascending: false }).limit(50),
     ]);
     setAlunos((al ?? []) as Aluno[]);
     setAcessos((ac ?? []) as Acesso[]);
     setCarregando(false);
-  }, []);
+  }, [session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 
