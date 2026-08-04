@@ -24,10 +24,12 @@ function RankingPage() {
   const [rows, setRows] = useState<Row[]>([]);
 
   useEffect(() => {
+    if (!session?.academia_id) return;
     (async () => {
       const { data: xp } = await supabase
         .from("pontos_xp")
         .select("user_id,xp_total,nivel")
+        .eq("academia_id", session.academia_id)
         .order("xp_total", { ascending: false })
         .limit(20);
       const ids = (xp ?? []).map((x) => x.user_id);
@@ -38,7 +40,7 @@ function RankingPage() {
       }
       setRows((xp ?? []).map((x) => ({ ...x, nome: nomes[x.user_id] ?? "—" })));
     })();
-  }, []);
+  }, [session?.academia_id]);
 
   return (
     <section className="fp-view fp-glass">
