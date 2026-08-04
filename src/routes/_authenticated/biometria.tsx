@@ -38,10 +38,15 @@ function BiometriaPage() {
   const [catracaLog, setCatracaLog] = useState<string>("");
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("alunos").select("id,nome,status_financeiro,hash_biometria_digital,vetor_facial").order("nome");
+    if (!session?.academia_id) return;
+    const { data } = await supabase
+      .from("alunos")
+      .select("id,nome,status_financeiro,hash_biometria_digital,vetor_facial")
+      .eq("academia_id", session.academia_id)
+      .order("nome");
     setAlunos((data ?? []) as Aluno[]);
     if (data && data[0] && !selId) setSelId(data[0].id);
-  }, [selId]);
+  }, [selId, session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

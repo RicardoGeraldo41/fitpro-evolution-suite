@@ -5,6 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
 
 export const Route = createFileRoute("/_authenticated/medidas")({
+  head: () => ({
+    meta: [
+      { title: "Medidas & Fotos — FitPro GYM2" },
+      { name: "description", content: "Registro de medidas corporais e fotos de evolução com gráfico de peso." },
+      { property: "og:title", content: "Medidas & Fotos — FitPro GYM2" },
+      { property: "og:description", content: "Acompanhamento de medidas corporais e fotos de evolução do aluno." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: MedidasPage,
 });
 

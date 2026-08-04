@@ -4,6 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
 
 export const Route = createFileRoute("/_authenticated/evolucao")({
+  head: () => ({
+    meta: [
+      { title: "Minha Evolução — FitPro GYM2" },
+      { name: "description", content: "Acompanhe sua evolução de cargas no treino e histórico de avaliações corporais." },
+      { property: "og:title", content: "Minha Evolução — FitPro GYM2" },
+      { property: "og:description", content: "Gráficos de carga e avaliações antropométricas do aluno." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: EvolucaoPage,
 });
 
