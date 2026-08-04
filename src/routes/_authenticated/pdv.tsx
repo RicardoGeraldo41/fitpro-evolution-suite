@@ -6,6 +6,16 @@ import { useSession } from "@/lib/fitpro/session";
 import { fmtBRL } from "@/lib/fitpro/utils";
 
 export const Route = createFileRoute("/_authenticated/pdv")({
+  head: () => ({
+    meta: [
+      { title: "PDV de Balcão — FitPro GYM2" },
+      { name: "description", content: "Ponto de venda da recepção: produtos, estoque e fechamento de vendas." },
+      { property: "og:title", content: "PDV de Balcão — FitPro GYM2" },
+      { property: "og:description", content: "Venda rápida de produtos e suplementos na recepção da academia." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PDVPage,
 });
 
@@ -20,9 +30,10 @@ function PDVPage() {
   const [log, setLog] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("produtos").select("*").order("nome");
+    if (!session?.academia_id) return;
+    const { data } = await supabase.from("produtos").select("*").eq("academia_id", session.academia_id).order("nome");
     setProdutos((data ?? []) as Produto[]);
-  }, []);
+  }, [session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

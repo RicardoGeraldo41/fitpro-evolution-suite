@@ -6,6 +6,16 @@ import { useSession } from "@/lib/fitpro/session";
 import { calcularPollock3 } from "@/lib/fitpro/utils";
 
 export const Route = createFileRoute("/_authenticated/avaliacao")({
+  head: () => ({
+    meta: [
+      { title: "Avaliação Antropométrica — FitPro GYM2" },
+      { name: "description", content: "Protocolo científico Pollock 3 dobras para avaliação corporal e composição física." },
+      { property: "og:title", content: "Avaliação Antropométrica — FitPro GYM2" },
+      { property: "og:description", content: "Avaliação corporal com cálculo de percentual de gordura, massa magra e IMC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AvaliacaoPage,
 });
 
@@ -29,13 +39,14 @@ function AvaliacaoPage() {
   const [historico, setHistorico] = useState<Avaliacao[]>([]);
 
   useEffect(() => {
-    supabase.from("alunos").select("id,nome").order("nome").then(({ data }) => {
+    if (!session?.academia_id) return;
+    supabase.from("alunos").select("id,nome").eq("academia_id", session.academia_id).order("nome").then(({ data }) => {
       const list = (data ?? []) as Aluno[];
       setAlunos(list);
       if (list[0] && !alunoId) setAlunoId(list[0].id);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [session?.academia_id]);
 
   const loadHist = useCallback(async () => {
     if (!alunoId) return;
