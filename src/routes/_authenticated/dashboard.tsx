@@ -8,6 +8,16 @@ import { fmtBRL } from "@/lib/fitpro/utils";
 import { sugerirRetencao } from "@/lib/fitpro/ai.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Painel Estratégico — FitPro GYM2" },
+      { name: "description", content: "Dashboard operacional da academia: alunos, inadimplência, caixa e faturamento recorrente." },
+      { property: "og:title", content: "Painel Estratégico — FitPro GYM2" },
+      { property: "og:description", content: "Acompanhe KPIs financeiros e operacionais da sua academia em tempo real." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: DashboardPage,
 });
 
@@ -20,11 +30,12 @@ function DashboardPage() {
   const [faturamento12m, setFaturamento12m] = useState<{ mes: string; total: number }[]>([]);
 
   useEffect(() => {
+    if (!session?.academia_id) return;
     (async () => {
       const [{ data: alunos = [] }, { data: vendas = [] }, { data: rec = [] }] = await Promise.all([
-        supabase.from("alunos").select("status_financeiro"),
-        supabase.from("vendas").select("total,created_at"),
-        supabase.from("recorrencias").select("valor,status,created_at"),
+        supabase.from("alunos").select("status_financeiro").eq("academia_id", session.academia_id),
+        supabase.from("vendas").select("total,created_at").eq("academia_id", session.academia_id),
+        supabase.from("recorrencias").select("valor,status,created_at").eq("academia_id", session.academia_id),
       ]);
 
       const totalVendas = (vendas ?? []).reduce((s, v) => s + Number(v.total || 0), 0);

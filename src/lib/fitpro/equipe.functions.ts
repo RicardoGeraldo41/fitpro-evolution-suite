@@ -57,7 +57,7 @@ export const criarMembroEquipe = createServerFn({ method: "POST" })
 
     const { error: rErr } = await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id: uid, role: data.role, academia_id }, { onConflict: "user_id,role" });
+      .upsert({ user_id: uid, role: data.role, academia_id }, { onConflict: "user_id,role,academia_id" });
     if (rErr) throw new Error(rErr.message);
 
     if (data.role === "ALUNO") {

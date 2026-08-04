@@ -5,6 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
 
 export const Route = createFileRoute("/_authenticated/alimentacao")({
+  head: () => ({
+    meta: [
+      { title: "Plano Alimentar — FitPro GYM2" },
+      { name: "description", content: "Monte planos alimentares personalizados com controle de calorias e macros." },
+      { property: "og:title", content: "Plano Alimentar — FitPro GYM2" },
+      { property: "og:description", content: "Nutrição e controle de macros para alunos e equipe técnica." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AlimentacaoPage,
 });
 
@@ -24,10 +34,10 @@ function AlimentacaoPage() {
   const [novoAlimento, setNovoAlimento] = useState({ nome: "", kcal: "", proteinas: "", carboidratos: "", gorduras: "" });
 
   const loadBase = useCallback(async () => {
-    if (!session) return;
+    if (!session?.academia_id) return;
     const [{ data: al }, { data: alim }] = await Promise.all([
-      isStaff ? supabase.from("alunos").select("id,nome").order("nome") : Promise.resolve({ data: [] as Aluno[] }),
-      supabase.from("alimentos").select("*").order("nome"),
+      isStaff ? supabase.from("alunos").select("id,nome").eq("academia_id", session.academia_id).order("nome") : Promise.resolve({ data: [] as Aluno[] }),
+      supabase.from("alimentos").select("*").eq("academia_id", session.academia_id).order("nome"),
     ]);
     if (isStaff) {
       const list = (al ?? []) as Aluno[];

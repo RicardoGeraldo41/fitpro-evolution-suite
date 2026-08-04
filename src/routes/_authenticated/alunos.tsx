@@ -74,12 +74,13 @@ function AlunosPage() {
   const canPersonal = isAdmin || session?.role === "PERSONAL";
 
   const load = useCallback(async () => {
+    if (!session?.academia_id) return;
     setLoading(true);
-    const { data, error } = await supabase.from("alunos").select("*").order("nome");
+    const { data, error } = await supabase.from("alunos").select("*").eq("academia_id", session.academia_id).order("nome");
     if (error) toast.error(error.message);
     setAlunos((data ?? []) as Aluno[]);
     setLoading(false);
-  }, []);
+  }, [session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

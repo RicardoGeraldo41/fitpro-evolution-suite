@@ -7,6 +7,16 @@ import { fmtBRL } from "@/lib/fitpro/utils";
 import { downloadCsv } from "@/lib/fitpro/csv";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
+  head: () => ({
+    meta: [
+      { title: "Relatórios & Business Intelligence — FitPro GYM2" },
+      { name: "description", content: "Indicadores financeiros, taxa de inadimplência, acessos e receita recorrente da academia." },
+      { property: "og:title", content: "Relatórios & Business Intelligence — FitPro GYM2" },
+      { property: "og:description", content: "Dashboard de KPIs financeiros e operacionais para gestão da academia." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: RelatoriosPage,
 });
 
@@ -39,16 +49,16 @@ function RelatoriosPage() {
   );
 
   const carregar = useCallback(async () => {
-    if (!session) return;
+    if (!session?.academia_id) return;
     setLoading(true);
     const ini = `${de}T00:00:00.000Z`;
     const fim = `${ate}T23:59:59.999Z`;
     const [a, p, r, ac, v] = await Promise.all([
-      supabase.from("alunos").select("id,nome,cpf,telefone,plano,valor_plano,status,status_financeiro,data_matricula").order("nome"),
-      supabase.from("pagamentos").select("id,valor,forma,pago_em,aluno_id").gte("pago_em", ini).lte("pago_em", fim).order("pago_em", { ascending: false }),
-      supabase.from("recorrencias").select("id,valor,status,vencimento,aluno_id").order("vencimento", { ascending: false }),
-      supabase.from("acessos").select("id,created_at,metodo,permitido,motivo,aluno_id").gte("created_at", ini).lte("created_at", fim).order("created_at", { ascending: false }).limit(2000),
-      supabase.from("vendas").select("id,total,created_at,aluno_id").gte("created_at", ini).lte("created_at", fim).order("created_at", { ascending: false }),
+      supabase.from("alunos").select("id,nome,cpf,telefone,plano,valor_plano,status,status_financeiro,data_matricula").eq("academia_id", session.academia_id).order("nome"),
+      supabase.from("pagamentos").select("id,valor,forma,pago_em,aluno_id").eq("academia_id", session.academia_id).gte("pago_em", ini).lte("pago_em", fim).order("pago_em", { ascending: false }),
+      supabase.from("recorrencias").select("id,valor,status,vencimento,aluno_id").eq("academia_id", session.academia_id).order("vencimento", { ascending: false }),
+      supabase.from("acessos").select("id,created_at,metodo,permitido,motivo,aluno_id").eq("academia_id", session.academia_id).gte("created_at", ini).lte("created_at", fim).order("created_at", { ascending: false }).limit(2000),
+      supabase.from("vendas").select("id,total,created_at,aluno_id").eq("academia_id", session.academia_id).gte("created_at", ini).lte("created_at", fim).order("created_at", { ascending: false }),
     ]);
     setAlunos((a.data ?? []) as AlunoRow[]);
     setPagamentos((p.data ?? []) as PagamentoRow[]);
@@ -56,7 +66,7 @@ function RelatoriosPage() {
     setAcessos((ac.data ?? []) as AcessoRow[]);
     setVendas((v.data ?? []) as VendaRow[]);
     setLoading(false);
-  }, [session, de, ate]);
+  }, [session?.academia_id, de, ate]);
 
   useEffect(() => { carregar(); }, [carregar]);
 

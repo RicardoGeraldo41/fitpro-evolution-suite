@@ -4,6 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
 
 export const Route = createFileRoute("/_authenticated/auditoria")({
+  head: () => ({
+    meta: [
+      { title: "Auditoria de Ações — FitPro GYM2" },
+      { name: "description", content: "Logs de segurança e auditoria das ações executadas na academia." },
+      { property: "og:title", content: "Auditoria de Ações — FitPro GYM2" },
+      { property: "og:description", content: "Registro de alterações e ações críticas no sistema para governança." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AuditoriaPage,
 });
 
@@ -25,7 +35,13 @@ function AuditoriaPage() {
   const [nomes, setNomes] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
-    let q = supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(200);
+    if (!session?.academia_id) return;
+    let q = supabase
+      .from("audit_logs")
+      .select("*")
+      .eq("academia_id", session.academia_id)
+      .order("created_at", { ascending: false })
+      .limit(200);
     if (filtroEnt) q = q.eq("entidade", filtroEnt);
     if (filtroAcao) q = q.eq("acao", filtroAcao);
     const { data } = await q;
@@ -36,7 +52,7 @@ function AuditoriaPage() {
       const { data: profs } = await supabase.from("profiles").select("id,nome").in("id", uids);
       setNomes(Object.fromEntries((profs ?? []).map((p) => [p.id, p.nome])));
     }
-  }, [filtroEnt, filtroAcao]);
+  }, [filtroEnt, filtroAcao, session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

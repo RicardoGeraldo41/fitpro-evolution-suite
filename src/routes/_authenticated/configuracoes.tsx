@@ -8,6 +8,16 @@ import { useSession, type Role } from "@/lib/fitpro/session";
 import { alterarPapelMembro, criarMembroEquipe, removerMembroEquipe } from "@/lib/fitpro/equipe.functions";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
+  head: () => ({
+    meta: [
+      { title: "Configurações da Unidade — FitPro GYM2" },
+      { name: "description", content: "Gestão de equipe, dados da academia e preferências do sistema FitPro GYM2." },
+      { property: "og:title", content: "Configurações da Unidade — FitPro GYM2" },
+      { property: "og:description", content: "Configure a academia, gerencie usuários e permissões da equipe." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: ConfiguracoesPage,
 });
 

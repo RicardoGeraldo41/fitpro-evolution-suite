@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/fitpro/session";
 import {
   capturarTemplateDigital,
   processarSelfieFacial,
@@ -9,6 +10,16 @@ import {
 } from "@/lib/fitpro/utils";
 
 export const Route = createFileRoute("/_authenticated/biometria")({
+  head: () => ({
+    meta: [
+      { title: "Biometria & Facial — FitPro GYM2" },
+      { name: "description", content: "Cadastre digital e reconhecimento facial dos alunos para liberação na catraca." },
+      { property: "og:title", content: "Biometria & Facial — FitPro GYM2" },
+      { property: "og:description", content: "Cadastro biométrico digital e facial com simulador de catraca." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: BiometriaPage,
 });
 
@@ -21,6 +32,7 @@ type Aluno = {
 };
 
 function BiometriaPage() {
+  const { session } = useSession();
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [selId, setSelId] = useState<string>("");
   const [digitalMsg, setDigitalMsg] = useState<string | null>(null);
@@ -28,10 +40,15 @@ function BiometriaPage() {
   const [catracaLog, setCatracaLog] = useState<string>("");
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("alunos").select("id,nome,status_financeiro,hash_biometria_digital,vetor_facial").order("nome");
+    if (!session?.academia_id) return;
+    const { data } = await supabase
+      .from("alunos")
+      .select("id,nome,status_financeiro,hash_biometria_digital,vetor_facial")
+      .eq("academia_id", session.academia_id)
+      .order("nome");
     setAlunos((data ?? []) as Aluno[]);
     if (data && data[0] && !selId) setSelId(data[0].id);
-  }, [selId]);
+  }, [selId, session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 
