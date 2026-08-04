@@ -56,15 +56,16 @@ function GradePage() {
   const [presencaAula, setPresencaAula] = useState<Aula | null>(null);
 
   const load = useCallback(async () => {
+    if (!session?.academia_id) return;
     const [{ data: au }, { data: ag }, { data: al }] = await Promise.all([
-      supabase.from("aulas").select("*").order("dia_semana").order("horario"),
-      supabase.from("agendamentos").select("*").gte("data", new Date().toISOString().slice(0, 10)),
-      isStaff ? supabase.from("alunos").select("id,nome").order("nome") : Promise.resolve({ data: [] as Aluno[] }),
+      supabase.from("aulas").select("*").eq("academia_id", session.academia_id).order("dia_semana").order("horario"),
+      supabase.from("agendamentos").select("*").eq("academia_id", session.academia_id).gte("data", new Date().toISOString().slice(0, 10)),
+      isStaff ? supabase.from("alunos").select("id,nome").eq("academia_id", session.academia_id).order("nome") : Promise.resolve({ data: [] as Aluno[] }),
     ]);
     setAulas((au ?? []) as Aula[]);
     setAgendas((ag ?? []) as Agendamento[]);
     setAlunos((al ?? []) as Aluno[]);
-  }, [isStaff]);
+  }, [isStaff, session?.academia_id]);
 
   useEffect(() => { load(); }, [load]);
 

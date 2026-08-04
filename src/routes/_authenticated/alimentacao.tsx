@@ -34,10 +34,10 @@ function AlimentacaoPage() {
   const [novoAlimento, setNovoAlimento] = useState({ nome: "", kcal: "", proteinas: "", carboidratos: "", gorduras: "" });
 
   const loadBase = useCallback(async () => {
-    if (!session) return;
+    if (!session?.academia_id) return;
     const [{ data: al }, { data: alim }] = await Promise.all([
-      isStaff ? supabase.from("alunos").select("id,nome").order("nome") : Promise.resolve({ data: [] as Aluno[] }),
-      supabase.from("alimentos").select("*").order("nome"),
+      isStaff ? supabase.from("alunos").select("id,nome").eq("academia_id", session.academia_id).order("nome") : Promise.resolve({ data: [] as Aluno[] }),
+      supabase.from("alimentos").select("*").eq("academia_id", session.academia_id).order("nome"),
     ]);
     if (isStaff) {
       const list = (al ?? []) as Aluno[];
