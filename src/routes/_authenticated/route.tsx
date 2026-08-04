@@ -68,7 +68,7 @@ function AuthLayout() {
     <div className="fp-screen">
       <header className="fp-topbar fp-glass">
         <button className="fp-burger" aria-label="Abrir menu" onClick={() => setMenuAberto((v) => !v)}>
-          ☰
+          <Menu size={22} />
         </button>
         <h2 className="fp-brand-mini" style={{ padding: 0 }}>FitPro <span>GYM2</span></h2>
       </header>
