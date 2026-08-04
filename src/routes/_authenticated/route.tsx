@@ -83,6 +83,7 @@ function AuthLayout() {
         <nav className="fp-nav">
           {items.map((it) => (
             <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
+              <span className="fp-nav-icon">{it.icon}</span>
               {it.label}
             </Link>
           ))}
