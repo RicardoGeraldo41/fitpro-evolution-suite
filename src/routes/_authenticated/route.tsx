@@ -94,8 +94,8 @@ function AuthLayout() {
             <p style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{session.nome}</p>
             <p className="fp-role-tag">{session.role}</p>
           </div>
-          <button className="fp-btn fp-btn-ghost" onClick={signOut}>
-            Sair
+          <button className="fp-btn fp-btn-ghost" onClick={signOut} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <LogOut size={16} /> Sair
           </button>
         </div>
       </aside>
