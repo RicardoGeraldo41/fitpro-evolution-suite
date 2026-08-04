@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { LayoutDashboard, DoorOpen, Users, CreditCard, Fingerprint, ShoppingCart, Wallet, BarChart3, Dumbbell, ClipboardList, Ruler, Apple, CalendarDays, Settings, ShieldAlert, LogOut, Menu } from "lucide-react";
 import { useSession, type Role } from "@/lib/fitpro/session";
 import "@/styles/fitpro.css";
 
