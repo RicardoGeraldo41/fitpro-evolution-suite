@@ -80,7 +80,16 @@ function DashboardPage() {
 
   return (
     <section className="fp-view fp-glass">
-      <h2>Painel Estratégico</h2>
+      <div className="fp-view-header">
+        <div>
+          <h2>Painel Estratégico</h2>
+          <p style={{ fontSize: 13, color: "var(--fp-muted)", marginTop: -12 }}>
+            Saúde financeira e operacional da unidade em tempo real.
+          </p>
+        </div>
+      </div>
+
+      <p className="fp-section-label">Indicadores principais</p>
       <div className="fp-cards-grid">
         {kpis.map((k) => (
           <div key={k.label} className="fp-kpi">
@@ -92,10 +101,8 @@ function DashboardPage() {
 
       {session?.role === "DONO" && (
         <>
-          <div className="fp-glass-inner" style={{ marginTop: 22 }}>
-            <h3 style={{ fontSize: 14, textTransform: "uppercase", letterSpacing: 1, color: "var(--fp-muted)" }}>
-              Faturamento Consolidado
-            </h3>
+          <div className="fp-glass-inner" style={{ marginTop: 24 }}>
+            <p className="fp-section-label" style={{ marginBottom: 0 }}>Faturamento consolidado</p>
             <div className="fp-metrics">
               {finance.map((m) => (
                 <div key={m.label}>
@@ -195,21 +202,22 @@ function BarChart12m({ data }: { data: { mes: string; total: number }[] }) {
   return (
     <div className="fp-chart-box">
       <h3>Faturamento — últimos 12 meses</h3>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 180 }}>
+      <div className="fp-chart-grid">
         {data.map((d) => (
-          <div key={d.mes} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+          <div key={d.mes} className="fp-chart-col">
             <div
+              className="fp-chart-bar"
               title={"R$ " + fmtBRL(d.total)}
-              style={{
-                width: "100%",
-                height: (d.total / max) * 150 + "px",
-                minHeight: 2,
-                background: "linear-gradient(180deg, var(--fp-neon), var(--fp-neon2))",
-                borderRadius: 6,
-              }}
+              style={{ height: Math.max(2, (d.total / max) * 150) + "px" }}
             />
-            <span style={{ fontSize: 10, color: "var(--fp-muted)" }}>{d.mes}</span>
           </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        {data.map((d) => (
+          <span key={d.mes} className="fp-chart-label" style={{ flex: 1, textAlign: "center" }}>
+            {d.mes}
+          </span>
         ))}
       </div>
     </div>

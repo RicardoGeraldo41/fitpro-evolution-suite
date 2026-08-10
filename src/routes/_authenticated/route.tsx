@@ -9,28 +9,29 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthLayout,
 });
 
-type NavItem = { to: string; label: string; roles: Role[]; icon: React.ReactNode };
+type NavItem = { to: string; label: string; roles: Role[]; icon: React.ReactNode; group: string };
 const ICON = { size: 18, strokeWidth: 2 };
+const GROUP_ORDER = ["Visão geral", "Operação", "Financeiro", "Treino & Saúde", "Engajamento", "Administração"];
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Painel Estratégico", roles: ["DONO", "ADMIN"], icon: <LayoutDashboard {...ICON} /> },
-  { to: "/recepcao", label: "Recepção & Catraca", roles: ["DONO", "ADMIN", "PERSONAL"], icon: <DoorOpen {...ICON} /> },
-  { to: "/alunos", label: "Alunos", roles: ["DONO", "ADMIN", "PERSONAL"], icon: <Users {...ICON} /> },
-  { to: "/planos", label: "Planos & Matrículas", roles: ["DONO", "ADMIN"], icon: <CreditCard {...ICON} /> },
-  { to: "/biometria", label: "Biometria", roles: ["DONO", "ADMIN"], icon: <Fingerprint {...ICON} /> },
-  { to: "/pdv", label: "PDV Balcão", roles: ["DONO", "ADMIN"], icon: <ShoppingCart {...ICON} /> },
-  { to: "/recorrencia", label: "Financeiro", roles: ["DONO", "ADMIN"], icon: <Wallet {...ICON} /> },
-  { to: "/relatorios", label: "Relatórios", roles: ["DONO", "ADMIN"], icon: <BarChart3 {...ICON} /> },
-  { to: "/treino", label: "Modo Em Treino", roles: ["ALUNO"], icon: <Dumbbell {...ICON} /> },
-  { to: "/avaliacao", label: "Avaliação", roles: ["DONO", "PERSONAL"], icon: <ClipboardList {...ICON} /> },
-  { to: "/medidas", label: "Medidas & Fotos", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <Ruler {...ICON} /> },
-  { to: "/alimentacao", label: "Plano Alimentar", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <Apple {...ICON} /> },
-  { to: "/grade", label: "Grade de Aulas", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <CalendarDays {...ICON} /> },
-  { to: "/recepcao", label: "Meus Acessos", roles: ["ALUNO"], icon: <DoorOpen {...ICON} /> },
-  { to: "/planos", label: "Minha Matrícula", roles: ["ALUNO"], icon: <CreditCard {...ICON} /> },
-  { to: "/evolucao", label: "Minha Evolução", roles: ["ALUNO"], icon: <BarChart3 {...ICON} /> },
-  { to: "/ranking", label: "Ranking XP", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <LayoutDashboard {...ICON} /> },
-  { to: "/configuracoes", label: "Configurações & Equipe", roles: ["DONO", "ADMIN"], icon: <Settings {...ICON} /> },
-  { to: "/auditoria", label: "Auditoria", roles: ["DONO", "ADMIN"], icon: <ShieldAlert {...ICON} /> },
+  { to: "/dashboard", label: "Painel Estratégico", roles: ["DONO", "ADMIN"], icon: <LayoutDashboard {...ICON} />, group: "Visão geral" },
+  { to: "/relatorios", label: "Relatórios", roles: ["DONO", "ADMIN"], icon: <BarChart3 {...ICON} />, group: "Visão geral" },
+  { to: "/recepcao", label: "Recepção & Catraca", roles: ["DONO", "ADMIN", "PERSONAL"], icon: <DoorOpen {...ICON} />, group: "Operação" },
+  { to: "/alunos", label: "Alunos", roles: ["DONO", "ADMIN", "PERSONAL"], icon: <Users {...ICON} />, group: "Operação" },
+  { to: "/biometria", label: "Biometria", roles: ["DONO", "ADMIN"], icon: <Fingerprint {...ICON} />, group: "Operação" },
+  { to: "/grade", label: "Grade de Aulas", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <CalendarDays {...ICON} />, group: "Operação" },
+  { to: "/planos", label: "Planos & Matrículas", roles: ["DONO", "ADMIN"], icon: <CreditCard {...ICON} />, group: "Financeiro" },
+  { to: "/pdv", label: "PDV Balcão", roles: ["DONO", "ADMIN"], icon: <ShoppingCart {...ICON} />, group: "Financeiro" },
+  { to: "/recorrencia", label: "Financeiro", roles: ["DONO", "ADMIN"], icon: <Wallet {...ICON} />, group: "Financeiro" },
+  { to: "/treino", label: "Modo Em Treino", roles: ["ALUNO"], icon: <Dumbbell {...ICON} />, group: "Treino & Saúde" },
+  { to: "/avaliacao", label: "Avaliação", roles: ["DONO", "PERSONAL"], icon: <ClipboardList {...ICON} />, group: "Treino & Saúde" },
+  { to: "/medidas", label: "Medidas & Fotos", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <Ruler {...ICON} />, group: "Treino & Saúde" },
+  { to: "/alimentacao", label: "Plano Alimentar", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <Apple {...ICON} />, group: "Treino & Saúde" },
+  { to: "/recepcao", label: "Meus Acessos", roles: ["ALUNO"], icon: <DoorOpen {...ICON} />, group: "Operação" },
+  { to: "/planos", label: "Minha Matrícula", roles: ["ALUNO"], icon: <CreditCard {...ICON} />, group: "Financeiro" },
+  { to: "/evolucao", label: "Minha Evolução", roles: ["ALUNO"], icon: <BarChart3 {...ICON} />, group: "Treino & Saúde" },
+  { to: "/ranking", label: "Ranking XP", roles: ["DONO", "ADMIN", "PERSONAL", "ALUNO"], icon: <LayoutDashboard {...ICON} />, group: "Engajamento" },
+  { to: "/configuracoes", label: "Configurações & Equipe", roles: ["DONO", "ADMIN"], icon: <Settings {...ICON} />, group: "Administração" },
+  { to: "/auditoria", label: "Auditoria", roles: ["DONO", "ADMIN"], icon: <ShieldAlert {...ICON} />, group: "Administração" },
 ];
 
 
@@ -63,11 +64,19 @@ function AuthLayout() {
   }
 
   const items = NAV.filter((n) => n.roles.includes(session.role));
+  const grupos = GROUP_ORDER.map((g) => ({ nome: g, itens: items.filter((i) => i.group === g) })).filter(
+    (g) => g.itens.length > 0
+  );
 
   return (
     <div className="fp-screen">
       <header className="fp-topbar fp-glass">
-        <button className="fp-burger" aria-label="Abrir menu" onClick={() => setMenuAberto((v) => !v)}>
+        <button
+          className="fp-burger"
+          aria-label={menuAberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+          aria-expanded={menuAberto}
+          onClick={() => setMenuAberto((v) => !v)}
+        >
           <Menu size={22} />
         </button>
         <h2 className="fp-brand-mini" style={{ padding: 0 }}>Studio <span>Xtreme Workout</span></h2>
@@ -75,17 +84,24 @@ function AuthLayout() {
 
       {menuAberto && <div className="fp-backdrop" onClick={() => setMenuAberto(false)} />}
 
-      <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")}>
-        <h2 className="fp-brand-mini">Studio <span>Xtreme Workout</span></h2>
-        <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
-          {session.academia_nome}
-        </p>
+      <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")} aria-label="Navegação principal">
+        <div className="fp-sidebar-head">
+          <h2 className="fp-brand-mini">Studio <span>Xtreme Workout</span></h2>
+          <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
+            {session.academia_nome}
+          </p>
+        </div>
         <nav className="fp-nav">
-          {items.map((it) => (
-            <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
-              <span className="fp-nav-icon">{it.icon}</span>
-              {it.label}
-            </Link>
+          {grupos.map((g) => (
+            <div className="fp-nav-group" key={g.nome}>
+              <p className="fp-nav-group-label">{g.nome}</p>
+              {g.itens.map((it) => (
+                <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
+                  <span className="fp-nav-icon">{it.icon}</span>
+                  {it.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="fp-user-box">
