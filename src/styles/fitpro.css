@@ -331,46 +331,62 @@ body.fp-body::after {
 .fp-btn-danger:hover { box-shadow: 0 10px 24px -10px rgba(239, 68, 68, 0.6); }
 
 .fp-sidebar {
-  width: 260px;
-  margin: 18px;
-  padding: 24px;
+  width: 264px;
+  flex: 0 0 264px;
+  margin: 16px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 36px);
+  height: calc(100vh - 32px);
   position: sticky;
-  top: 18px;
+  top: 16px;
+  overflow-y: auto;
 }
-.fp-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; margin-top: 10px; }
+.fp-sidebar-head { padding: 4px 8px 14px; border-bottom: 1px solid var(--fp-border); margin-bottom: 10px; }
+.fp-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; margin-top: 6px; }
+.fp-nav-group { margin-top: 14px; }
+.fp-nav-group:first-child { margin-top: 0; }
+.fp-nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--fp-muted);
+  padding: 0 12px 6px;
+}
 .fp-nav a,
 .fp-nav .fp-nav-item {
-  padding: 11px 14px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  min-height: 42px;
+  border-radius: 9px;
   cursor: pointer;
-  color: var(--fp-muted);
-  font-size: 14px;
+  color: var(--fp-text-2);
+  font-size: 13.5px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: all 0.2s;
+  gap: 11px;
+  transition: background 0.18s, color 0.18s;
   text-decoration: none;
+  border: 1px solid transparent;
 }
 .fp-nav a .fp-nav-icon {
   display: inline-flex;
   color: var(--fp-muted);
-  transition: color 0.2s ease;
+  transition: color 0.18s ease;
 }
-.fp-nav a:hover .fp-nav-icon,
+.fp-nav a:hover .fp-nav-icon { color: var(--fp-text); }
 .fp-nav a.active .fp-nav-icon,
 .fp-nav a[data-status="active"] .fp-nav-icon {
-  color: #fff;
+  color: var(--fp-primary-hover);
 }
-.fp-nav a:hover { background: rgba(255, 255, 255, 0.06); color: var(--fp-text); }
+.fp-nav a:hover { background: rgba(255, 255, 255, 0.05); color: var(--fp-text); }
 .fp-nav a.active,
 .fp-nav a[data-status="active"] {
-  background: linear-gradient(90deg, rgba(168, 15, 20, 0.4), rgba(255, 45, 45, 0.25));
+  background: var(--fp-primary-soft);
   color: #fff;
-  border: 1px solid var(--fp-border);
+  font-weight: 600;
+  border-color: var(--fp-border-accent);
 }
 .fp-user-box {
   display: flex;
@@ -378,14 +394,15 @@ body.fp-body::after {
   gap: 10px;
   padding-top: 14px;
   border-top: 1px solid var(--fp-border);
-  margin-top: auto;
+  margin-top: 16px;
 }
 .fp-user-box p { font-size: 13px; font-weight: 600; }
 .fp-avatar {
   width: 38px;
   height: 38px;
+  flex-shrink: 0;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--fp-neon), var(--fp-neon2));
+  background: var(--fp-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -396,33 +413,39 @@ body.fp-body::after {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--fp-neon);
+  color: var(--fp-text-2);
   font-weight: 700;
 }
-.fp-content { flex: 1; padding: 24px 28px 40px 0; display: flex; flex-direction: column; gap: 24px; overflow-x: hidden; }
-.fp-view { padding: 26px 28px; animation: fpFadeIn 0.35s ease; }
+.fp-content { flex: 1; min-width: 0; padding: 16px 24px 40px 8px; display: flex; flex-direction: column; gap: 20px; overflow-x: hidden; }
+.fp-view { padding: 26px 28px; }
 @keyframes fpFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.fp-view h2 { font-size: 24px; margin-bottom: 18px; font-weight: 700; letter-spacing: -0.3px; }
-.fp-view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
+.fp-view h2 { font-size: 22px; margin-bottom: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.fp-view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
 .fp-view-header h2 { margin: 0; }
 
-.fp-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-.fp-kpi { padding: 18px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--fp-border); }
-.fp-kpi h4 { font-size: 11px; color: var(--fp-muted); text-transform: uppercase; letter-spacing: 1px; }
+.fp-section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--fp-muted); font-weight: 700; margin-bottom: 12px; }
+
+.fp-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.fp-kpi {
+  padding: 20px;
+  border-radius: var(--fp-radius);
+  background: var(--fp-surface-2);
+  border: 1px solid var(--fp-border);
+}
+.fp-kpi h4 { font-size: 11px; color: var(--fp-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 .fp-kpi p {
-  font-size: 26px;
-  font-weight: 800;
-  margin-top: 6px;
-  background: linear-gradient(90deg, var(--fp-neon3), var(--fp-neon));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  margin-top: 10px;
+  color: var(--fp-text);
+  letter-spacing: -0.5px;
 }
 
-.fp-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 10px; }
-.fp-metrics > div { padding: 12px; background: rgba(0, 0, 0, 0.25); border-radius: 10px; }
-.fp-metrics span { display: block; font-size: 11px; color: var(--fp-muted); text-transform: uppercase; }
-.fp-metrics strong { font-size: 18px; color: var(--fp-neon); }
+.fp-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 14px; }
+.fp-metrics > div { padding: 14px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--fp-border); border-radius: 10px; }
+.fp-metrics span { display: block; font-size: 11px; color: var(--fp-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.fp-metrics strong { font-size: 19px; color: var(--fp-text); font-weight: 700; }
 
 .fp-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--fp-border); }
 .fp-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--fp-text); }
