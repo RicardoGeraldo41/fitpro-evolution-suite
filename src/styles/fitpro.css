@@ -87,30 +87,31 @@ body.fp-body::after {
   content: "";
   position: absolute;
   top: 0; left: -120%;
-  width: 60%; height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  width: 55%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.18), transparent);
   transform: skewX(-18deg);
-  animation: fpShine 3.2s ease-in-out infinite;
+  transition: left 0.6s ease;
 }
-@keyframes fpShine { 0% { left: -120%; } 55%, 100% { left: 140%; } }
+.fp-btn-shine:hover::after { left: 140%; }
 
 /* Abas */
 .fp-tabs {
-  display: flex; gap: 6px; padding: 5px;
-  background: rgba(2, 10, 25, 0.55);
+  display: flex; gap: 4px; padding: 4px;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--fp-border);
-  border-radius: 12px; margin: 6px 0 12px;
+  border-radius: 12px; margin: 10px 0 16px;
 }
 .fp-tab {
-  flex: 1; padding: 9px 12px; border: none; cursor: pointer;
-  background: transparent; color: var(--fp-muted);
+  flex: 1; padding: 10px 12px; border: none; cursor: pointer;
+  min-height: 44px;
+  background: transparent; color: var(--fp-text-2);
   border-radius: 9px; font-size: 13px; font-weight: 600;
-  font-family: inherit; transition: all 0.25s;
+  font-family: inherit; transition: background 0.2s, color 0.2s;
 }
-.fp-tab:hover { color: var(--fp-text); }
+.fp-tab:hover { color: var(--fp-text); background: rgba(255, 255, 255, 0.04); }
 .fp-tab.active {
-  background: linear-gradient(90deg, var(--fp-neon2), var(--fp-neon));
-  color: #fff; box-shadow: 0 6px 20px -8px rgba(255, 45, 45, 0.8);
+  background: var(--fp-primary);
+  color: #fff;
 }
 
 /* Cards de papel (hierarquia) */
@@ -143,7 +144,7 @@ body.fp-body::after {
   background-image: var(--fp-login-bg);
   background-size: cover;
   background-position: center;
-  filter: grayscale(0.35) contrast(1.05) brightness(0.45);
+  filter: grayscale(0.55) contrast(1.02) brightness(0.34);
   z-index: -2;
 }
 .fp-login::after {
@@ -151,51 +152,48 @@ body.fp-body::after {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 40%, rgba(168, 15, 20, 0.35), transparent 60%),
-    linear-gradient(180deg, rgba(6, 2, 2, 0.82), rgba(6, 2, 2, 0.94));
+    radial-gradient(circle at 50% 30%, rgba(224, 34, 49, 0.10), transparent 55%),
+    linear-gradient(180deg, rgba(8, 8, 10, 0.78), rgba(8, 8, 10, 0.94));
   z-index: -1;
 }
 .fp-logo-mark {
   display: block;
   width: 100%;
-  max-width: 260px;
-  margin: 0 auto 6px;
-  filter: drop-shadow(0 8px 24px rgba(255, 45, 45, 0.35));
+  max-width: 220px;
+  margin: 0 auto 10px;
 }
 .fp-glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(12px);
+  background: color-mix(in oklab, var(--fp-surface) 88%, transparent);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--fp-border);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px -10px rgba(168, 15, 20, 0.35);
+  border-radius: 18px;
+  box-shadow: var(--fp-shadow-lg);
   color: var(--fp-text);
 }
 .fp-glass-inner {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--fp-surface-2);
   border: 1px solid var(--fp-border);
-  border-radius: 14px;
-  padding: 18px;
-  backdrop-filter: blur(8px);
+  border-radius: var(--fp-radius);
+  padding: 20px;
 }
-.fp-auth-card { width: 100%; max-width: 440px; padding: 36px; display: flex; flex-direction: column; gap: 10px; }
-.fp-brand { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+.fp-auth-card { width: 100%; max-width: 430px; padding: 40px 36px; display: flex; flex-direction: column; gap: 4px; }
+.fp-brand { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; }
 .fp-brand span,
 .fp-brand-mini span {
-  background: linear-gradient(90deg, var(--fp-neon), var(--fp-neon2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--fp-primary);
 }
-.fp-brand-mini { font-size: 22px; font-weight: 800; padding: 8px 0 20px; }
-.fp-subtitle { color: var(--fp-muted); margin-bottom: 14px; font-size: 13px; }
+.fp-brand-mini { font-size: 19px; font-weight: 800; padding: 4px 0 6px; letter-spacing: -0.3px; }
+.fp-subtitle { color: var(--fp-muted); margin-bottom: 10px; font-size: 13px; }
 
 .fp-label {
-  font-size: 12px;
-  color: var(--fp-muted);
-  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fp-text-2);
+  margin-top: 14px;
+  margin-bottom: 6px;
   display: block;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 .fp-input,
 .fp-select,
