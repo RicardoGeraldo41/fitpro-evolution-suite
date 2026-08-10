@@ -8,9 +8,9 @@ import { calcularPollock3 } from "@/lib/fitpro/utils";
 export const Route = createFileRoute("/_authenticated/avaliacao")({
   head: () => ({
     meta: [
-      { title: "Avaliação Antropométrica — FitPro GYM2" },
+      { title: "Avaliação Antropométrica — Studio Xtreme Workout" },
       { name: "description", content: "Protocolo científico Pollock 3 dobras para avaliação corporal e composição física." },
-      { property: "og:title", content: "Avaliação Antropométrica — FitPro GYM2" },
+      { property: "og:title", content: "Avaliação Antropométrica — Studio Xtreme Workout" },
       { property: "og:description", content: "Avaliação corporal com cálculo de percentual de gordura, massa magra e IMC." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

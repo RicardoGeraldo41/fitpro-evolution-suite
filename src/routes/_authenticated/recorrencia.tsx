@@ -8,9 +8,9 @@ import { fmtBRL } from "@/lib/fitpro/utils";
 export const Route = createFileRoute("/_authenticated/recorrencia")({
   head: () => ({
     meta: [
-      { title: "Financeiro & Mensalidades — FitPro GYM2" },
+      { title: "Financeiro & Mensalidades — Studio Xtreme Workout" },
       { name: "description", content: "Gere mensalidades, registre pagamentos e acompanhe a inadimplência da academia." },
-      { property: "og:title", content: "Financeiro & Mensalidades — FitPro GYM2" },
+      { property: "og:title", content: "Financeiro & Mensalidades — Studio Xtreme Workout" },
       { property: "og:description", content: "Motor financeiro recorrente com baixa de pagamentos e controle de inadimplência." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

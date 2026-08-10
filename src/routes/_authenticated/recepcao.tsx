@@ -7,9 +7,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/recepcao")({
   head: () => ({
     meta: [
-      { title: "Recepção & Catraca — FitPro GYM2" },
+      { title: "Recepção & Catraca — Studio Xtreme Workout" },
       { name: "description", content: "Controle de entrada da academia: libere ou bloqueie acessos e acompanhe o histórico em tempo real." },
-      { property: "og:title", content: "Recepção & Catraca — FitPro GYM2" },
+      { property: "og:title", content: "Recepção & Catraca — Studio Xtreme Workout" },
       { property: "og:description", content: "Check-in de alunos com registro de acessos e bloqueio automático de inadimplentes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

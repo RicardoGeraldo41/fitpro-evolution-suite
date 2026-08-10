@@ -7,10 +7,10 @@ import "@/styles/fitpro.css";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Redefinir senha — FitPro GYM2" },
-      { name: "description", content: "Defina uma nova senha para acessar sua conta no FitPro GYM2." },
-      { property: "og:title", content: "Redefinir senha — FitPro GYM2" },
-      { property: "og:description", content: "Recuperação de acesso à plataforma FitPro GYM2." },
+      { title: "Redefinir senha — Studio Xtreme Workout" },
+      { name: "description", content: "Defina uma nova senha para acessar sua conta no Studio Xtreme Workout." },
+      { property: "og:title", content: "Redefinir senha — Studio Xtreme Workout" },
+      { property: "og:description", content: "Recuperação de acesso à plataforma Studio Xtreme Workout." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -54,7 +54,7 @@ function ResetPasswordPage() {
   return (
     <div className="fp-screen fp-login">
       <form className="fp-glass fp-auth-card" onSubmit={submit}>
-        <h1 className="fp-brand">FitPro <span>GYM2</span></h1>
+        <h1 className="fp-brand">Studio <span>Xtreme Workout</span></h1>
         <p className="fp-subtitle">Definir nova senha</p>
         {!pronto && (
           <p style={{ fontSize: 12, color: "var(--fp-muted)", marginBottom: 10 }}>

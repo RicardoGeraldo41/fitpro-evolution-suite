@@ -10,13 +10,13 @@ import "@/styles/fitpro.css";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar ou criar perfil — FitPro GYM2" },
+      { title: "Entrar ou criar perfil — Studio Xtreme Workout" },
       {
         name: "description",
         content:
-          "Acesse a plataforma FitPro GYM2 ou crie seu perfil como dono, personal ou aluno da academia.",
+          "Acesse a plataforma Studio Xtreme Workout ou crie seu perfil como dono, personal ou aluno da academia.",
       },
-      { property: "og:title", content: "FitPro GYM2 — Acesso e cadastro" },
+      { property: "og:title", content: "Studio Xtreme Workout — Acesso e cadastro" },
       {
         property: "og:description",
         content: "Gestão fitness premium: entre na sua conta ou cadastre seu perfil.",
@@ -160,7 +160,7 @@ function AuthPage() {
       <div className="fp-aurora" aria-hidden="true" />
       <div className="fp-glass fp-auth-card fp-rise">
         <h1 className="fp-brand">
-          FitPro <span>GYM2</span>
+          Studio <span>Xtreme Workout</span>
         </h1>
         <p className="fp-subtitle">Ecossistema Premium de Gestão Fitness</p>
 
