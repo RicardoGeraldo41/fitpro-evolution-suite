@@ -447,11 +447,11 @@ body.fp-body::after {
 .fp-metrics span { display: block; font-size: 11px; color: var(--fp-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
 .fp-metrics strong { font-size: 19px; color: var(--fp-text); font-weight: 700; }
 
-.fp-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--fp-border); }
-.fp-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--fp-text); }
-.fp-table th, .fp-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-.fp-table th { background: rgba(0, 0, 0, 0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--fp-muted); }
-.fp-table tr:hover td { background: rgba(255, 45, 45, 0.05); }
+.fp-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--fp-border); -webkit-overflow-scrolling: touch; }
+.fp-table { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--fp-text); min-width: 520px; }
+.fp-table th, .fp-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--fp-border); }
+.fp-table th { background: rgba(255, 255, 255, 0.03); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--fp-muted); font-weight: 600; }
+.fp-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
 
 .fp-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .fp-badge.ok { background: rgba(52, 211, 153, 0.15); color: var(--fp-ok); }
