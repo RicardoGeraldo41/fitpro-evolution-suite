@@ -199,48 +199,59 @@ body.fp-body::after {
 .fp-select,
 .fp-textarea {
   width: 100%;
-  padding: 11px 14px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--fp-border);
   color: var(--fp-text);
   font-size: 14px;
   outline: none;
-  transition: all 0.2s;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
   font-family: inherit;
 }
+.fp-input::placeholder, .fp-textarea::placeholder { color: var(--fp-muted); }
 .fp-input:focus,
 .fp-select:focus,
 .fp-textarea:focus {
-  border-color: var(--fp-neon);
-  box-shadow: 0 0 0 3px rgba(255, 45, 45, 0.25);
+  border-color: var(--fp-primary);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(224, 34, 49, 0.18);
 }
 
 .fp-btn {
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   font-family: inherit;
   font-weight: 600;
   border-radius: 10px;
   padding: 11px 18px;
+  min-height: 44px;
   font-size: 14px;
-  transition: transform 0.15s, box-shadow 0.2s;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.12s;
   color: var(--fp-text);
 }
-.fp-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.fp-btn:focus-visible,
+.fp-tab:focus-visible,
+.fp-nav a:focus-visible,
+.fp-burger:focus-visible {
+  outline: 2px solid var(--fp-primary-hover);
+  outline-offset: 2px;
+}
+.fp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .fp-btn-primary {
-  background: linear-gradient(90deg, var(--fp-neon2), var(--fp-neon));
+  background: var(--fp-primary);
   color: #fff;
-  box-shadow: 0 6px 24px -8px rgba(255, 45, 45, 0.6);
+  box-shadow: var(--fp-shadow-sm);
 }
 .fp-btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 30px -8px rgba(255, 45, 45, 0.8);
+  background: var(--fp-primary-hover);
 }
-.fp-btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid var(--fp-border); }
-.fp-btn-ghost { background: transparent; color: var(--fp-muted); padding: 6px 10px; font-size: 12px; }
-.fp-btn-ghost:hover { color: var(--fp-neon); }
-.fp-error { color: var(--fp-danger); font-size: 13px; margin-top: 8px; }
+.fp-btn-secondary { background: rgba(255, 255, 255, 0.06); border-color: var(--fp-border); }
+.fp-btn-secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); border-color: var(--fp-border-strong); }
+.fp-btn-ghost { background: transparent; color: var(--fp-text-2); padding: 8px 12px; font-size: 13px; min-height: 40px; }
+.fp-btn-ghost:hover { color: var(--fp-text); background: rgba(255, 255, 255, 0.05); }
+.fp-error { color: var(--fp-danger); font-size: 13px; margin-top: 10px; }
 
 /* ---------- Componentes reutilizáveis ---------- */
 .fp-loading-state {
