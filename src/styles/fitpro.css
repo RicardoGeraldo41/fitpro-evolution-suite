@@ -128,7 +128,7 @@ body.fp-body::after {
 .fp-role-card strong { font-size: 13px; }
 .fp-role-card span { font-size: 10px; color: var(--fp-muted); line-height: 1.3; }
 .fp-role-card.active {
-  background: linear-gradient(135deg, rgba(168, 15, 20, 0.45), rgba(255, 45, 45, 0.25));
+  background: var(--fp-primary-soft);
   border-color: var(--fp-neon);
   box-shadow: 0 0 0 3px rgba(255, 45, 45, 0.18);
 }
@@ -493,7 +493,7 @@ body.fp-body::after {
 .fp-total { font-size: 20px; font-weight: 800; margin: 14px 0; text-align: right; color: var(--fp-neon); }
 
 .fp-treino-wrap { display: flex; flex-direction: column; gap: 14px; }
-.fp-exercicio { padding: 18px; border-radius: 14px; background: linear-gradient(135deg, rgba(168, 15, 20, 0.15), rgba(255, 45, 45, 0.08)); border: 1px solid var(--fp-border); transition: all 0.3s; }
+.fp-exercicio { padding: 18px; border-radius: 14px; background: var(--fp-surface-2); border: 1px solid var(--fp-border); transition: border-color 0.2s; }
 .fp-exercicio.locked { opacity: 0.35; filter: blur(2px); pointer-events: none; }
 .fp-exercicio h3 { font-size: 18px; margin-bottom: 6px; }
 .fp-exercicio .fp-meta { color: var(--fp-muted); font-size: 12px; margin-bottom: 10px; }
@@ -509,7 +509,7 @@ body.fp-body::after {
   border: 6px solid var(--fp-neon);
   display: flex; align-items: center; justify-content: center;
   font-size: 72px; font-weight: 800; color: #fff;
-  box-shadow: 0 0 60px var(--fp-neon), inset 0 0 40px rgba(255, 45, 45, 0.3);
+  box-shadow: 0 0 40px -12px var(--fp-primary);
   animation: fpPulse 1s infinite;
 }
 @keyframes fpPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
@@ -654,9 +654,7 @@ body.fp-body::after {
   letter-spacing: -0.02em;
 }
 .fp-landing-title span {
-  background: linear-gradient(90deg, var(--fp-neon), var(--fp-neon2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--fp-primary);
 }
 .fp-landing-subtitle {
   max-width: 680px;
@@ -686,7 +684,7 @@ body.fp-body::after {
 }
 .fp-feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 50px -20px rgba(255, 45, 45, 0.22);
+  box-shadow: var(--fp-shadow-md); border-color: var(--fp-border-strong);
 }
 .fp-feature-card h3 { font-size: 15px; font-weight: 700; margin: 12px 0 6px; }
 .fp-feature-card p { font-size: 13px; color: var(--fp-muted); line-height: 1.5; margin: 0; }
@@ -697,7 +695,7 @@ body.fp-body::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 45, 45, 0.15), rgba(14, 165, 233, 0.08));
+  background: var(--fp-primary-soft);
   color: var(--fp-neon);
 }
 .fp-landing-footer {
