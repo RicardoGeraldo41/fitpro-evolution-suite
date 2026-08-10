@@ -9,9 +9,9 @@ import { downloadCsv } from "@/lib/fitpro/csv";
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({
     meta: [
-      { title: "Relatórios & Business Intelligence — FitPro GYM2" },
+      { title: "Relatórios & Business Intelligence — Studio Xtreme Workout" },
       { name: "description", content: "Indicadores financeiros, taxa de inadimplência, acessos e receita recorrente da academia." },
-      { property: "og:title", content: "Relatórios & Business Intelligence — FitPro GYM2" },
+      { property: "og:title", content: "Relatórios & Business Intelligence — Studio Xtreme Workout" },
       { property: "og:description", content: "Dashboard de KPIs financeiros e operacionais para gestão da academia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -10,9 +10,9 @@ import { sugerirRetencao } from "@/lib/fitpro/ai.functions";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Painel Estratégico — FitPro GYM2" },
+      { title: "Painel Estratégico — Studio Xtreme Workout" },
       { name: "description", content: "Dashboard operacional da academia: alunos, inadimplência, caixa e faturamento recorrente." },
-      { property: "og:title", content: "Painel Estratégico — FitPro GYM2" },
+      { property: "og:title", content: "Painel Estratégico — Studio Xtreme Workout" },
       { property: "og:description", content: "Acompanhe KPIs financeiros e operacionais da sua academia em tempo real." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

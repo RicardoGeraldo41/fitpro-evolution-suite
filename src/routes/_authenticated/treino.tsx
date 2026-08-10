@@ -7,9 +7,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/treino")({
   head: () => ({
     meta: [
-      { title: "Modo Em Treino — FitPro GYM2" },
+      { title: "Modo Em Treino — Studio Xtreme Workout" },
       { name: "description", content: "Workout tracker imersivo com controle de séries, carga e descanso entre exercícios." },
-      { property: "og:title", content: "Modo Em Treino — FitPro GYM2" },
+      { property: "og:title", content: "Modo Em Treino — Studio Xtreme Workout" },
       { property: "og:description", content: "Acompanhe sua ficha de treino, registre cargas e séries com timer." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

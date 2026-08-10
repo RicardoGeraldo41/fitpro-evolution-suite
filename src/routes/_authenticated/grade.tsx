@@ -7,9 +7,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/grade")({
   head: () => ({
     meta: [
-      { title: "Grade de Aulas — FitPro GYM2" },
+      { title: "Grade de Aulas — Studio Xtreme Workout" },
       { name: "description", content: "Grade semanal de aulas coletivas com reserva de vaga, cancelamento e lista de presença." },
-      { property: "og:title", content: "Grade de Aulas — FitPro GYM2" },
+      { property: "og:title", content: "Grade de Aulas — Studio Xtreme Workout" },
       { property: "og:description", content: "Agende aulas coletivas, controle vagas e registre presença dos alunos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

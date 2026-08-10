@@ -5,18 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { cadastrarPerfil, listarAcademiasPublicas } from "@/lib/fitpro/cadastro.functions";
 import { useSession } from "@/lib/fitpro/session";
+import logoXtreme from "@/assets/logo-xtreme.png.asset.json";
 import "@/styles/fitpro.css";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar ou criar perfil — FitPro GYM2" },
+      { title: "Entrar ou criar perfil — Studio Xtreme Workout" },
       {
         name: "description",
         content:
-          "Acesse a plataforma FitPro GYM2 ou crie seu perfil como dono, personal ou aluno da academia.",
+          "Acesse a plataforma Studio Xtreme Workout ou crie seu perfil como dono, personal ou aluno da academia.",
       },
-      { property: "og:title", content: "FitPro GYM2 — Acesso e cadastro" },
+      { property: "og:title", content: "Studio Xtreme Workout — Acesso e cadastro" },
       {
         property: "og:description",
         content: "Gestão fitness premium: entre na sua conta ou cadastre seu perfil.",
@@ -159,10 +160,11 @@ function AuthPage() {
     <div className="fp-screen fp-login">
       <div className="fp-aurora" aria-hidden="true" />
       <div className="fp-glass fp-auth-card fp-rise">
-        <h1 className="fp-brand">
-          FitPro <span>GYM2</span>
+        <img src={logoXtreme.url} alt="Logo Studio Xtreme Workout" className="fp-logo-mark" />
+        <h1 className="fp-brand" style={{ textAlign: "center" }}>
+          Studio <span>Xtreme Workout</span>
         </h1>
-        <p className="fp-subtitle">Ecossistema Premium de Gestão Fitness</p>
+        <p className="fp-subtitle" style={{ textAlign: "center" }}>Ecossistema Premium de Gestão Fitness</p>
 
         <div className="fp-tabs" role="tablist">
           <button

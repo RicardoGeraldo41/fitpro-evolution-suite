@@ -8,9 +8,9 @@ import { fmtBRL } from "@/lib/fitpro/utils";
 export const Route = createFileRoute("/_authenticated/pdv")({
   head: () => ({
     meta: [
-      { title: "PDV de Balcão — FitPro GYM2" },
+      { title: "PDV de Balcão — Studio Xtreme Workout" },
       { name: "description", content: "Ponto de venda da recepção: produtos, estoque e fechamento de vendas." },
-      { property: "og:title", content: "PDV de Balcão — FitPro GYM2" },
+      { property: "og:title", content: "PDV de Balcão — Studio Xtreme Workout" },
       { property: "og:description", content: "Venda rápida de produtos e suplementos na recepção da academia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

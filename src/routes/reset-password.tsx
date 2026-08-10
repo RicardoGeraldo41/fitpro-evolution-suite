@@ -2,15 +2,16 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logoXtreme from "@/assets/logo-xtreme.png.asset.json";
 import "@/styles/fitpro.css";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Redefinir senha — FitPro GYM2" },
-      { name: "description", content: "Defina uma nova senha para acessar sua conta no FitPro GYM2." },
-      { property: "og:title", content: "Redefinir senha — FitPro GYM2" },
-      { property: "og:description", content: "Recuperação de acesso à plataforma FitPro GYM2." },
+      { title: "Redefinir senha — Studio Xtreme Workout" },
+      { name: "description", content: "Defina uma nova senha para acessar sua conta no Studio Xtreme Workout." },
+      { property: "og:title", content: "Redefinir senha — Studio Xtreme Workout" },
+      { property: "og:description", content: "Recuperação de acesso à plataforma Studio Xtreme Workout." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -54,7 +55,8 @@ function ResetPasswordPage() {
   return (
     <div className="fp-screen fp-login">
       <form className="fp-glass fp-auth-card" onSubmit={submit}>
-        <h1 className="fp-brand">FitPro <span>GYM2</span></h1>
+        <img src={logoXtreme.url} alt="Logo Studio Xtreme Workout" className="fp-logo-mark" />
+        <h1 className="fp-brand" style={{ textAlign: "center" }}>Studio <span>Xtreme Workout</span></h1>
         <p className="fp-subtitle">Definir nova senha</p>
         {!pronto && (
           <p style={{ fontSize: 12, color: "var(--fp-muted)", marginBottom: 10 }}>
