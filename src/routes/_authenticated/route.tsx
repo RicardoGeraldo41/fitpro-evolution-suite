@@ -64,11 +64,19 @@ function AuthLayout() {
   }
 
   const items = NAV.filter((n) => n.roles.includes(session.role));
+  const grupos = GROUP_ORDER.map((g) => ({ nome: g, itens: items.filter((i) => i.group === g) })).filter(
+    (g) => g.itens.length > 0
+  );
 
   return (
     <div className="fp-screen">
       <header className="fp-topbar fp-glass">
-        <button className="fp-burger" aria-label="Abrir menu" onClick={() => setMenuAberto((v) => !v)}>
+        <button
+          className="fp-burger"
+          aria-label={menuAberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+          aria-expanded={menuAberto}
+          onClick={() => setMenuAberto((v) => !v)}
+        >
           <Menu size={22} />
         </button>
         <h2 className="fp-brand-mini" style={{ padding: 0 }}>Studio <span>Xtreme Workout</span></h2>
@@ -76,17 +84,24 @@ function AuthLayout() {
 
       {menuAberto && <div className="fp-backdrop" onClick={() => setMenuAberto(false)} />}
 
-      <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")}>
-        <h2 className="fp-brand-mini">Studio <span>Xtreme Workout</span></h2>
-        <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
-          {session.academia_nome}
-        </p>
+      <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")} aria-label="Navegação principal">
+        <div className="fp-sidebar-head">
+          <h2 className="fp-brand-mini">Studio <span>Xtreme Workout</span></h2>
+          <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
+            {session.academia_nome}
+          </p>
+        </div>
         <nav className="fp-nav">
-          {items.map((it) => (
-            <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
-              <span className="fp-nav-icon">{it.icon}</span>
-              {it.label}
-            </Link>
+          {grupos.map((g) => (
+            <div className="fp-nav-group" key={g.nome}>
+              <p className="fp-nav-group-label">{g.nome}</p>
+              {g.itens.map((it) => (
+                <Link key={it.to + it.label} to={it.to} activeProps={{ className: "active" }}>
+                  <span className="fp-nav-icon">{it.icon}</span>
+                  {it.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="fp-user-box">
