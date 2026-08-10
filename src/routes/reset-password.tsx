@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logoXtreme from "@/assets/logo-xtreme.png.asset.json";
 import "@/styles/fitpro.css";
 
 export const Route = createFileRoute("/reset-password")({
@@ -54,7 +55,8 @@ function ResetPasswordPage() {
   return (
     <div className="fp-screen fp-login">
       <form className="fp-glass fp-auth-card" onSubmit={submit}>
-        <h1 className="fp-brand">Studio <span>Xtreme Workout</span></h1>
+        <img src={logoXtreme.url} alt="Logo Studio Xtreme Workout" className="fp-logo-mark" />
+        <h1 className="fp-brand" style={{ textAlign: "center" }}>Studio <span>Xtreme Workout</span></h1>
         <p className="fp-subtitle">Definir nova senha</p>
         {!pronto && (
           <p style={{ fontSize: 12, color: "var(--fp-muted)", marginBottom: 10 }}>
