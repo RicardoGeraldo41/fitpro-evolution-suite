@@ -130,6 +130,32 @@ body.fp-body::after {
 
 .fp-screen { position: relative; z-index: 1; min-height: 100vh; display: flex; }
 .fp-login { align-items: center; justify-content: center; padding: 24px; }
+.fp-login::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: var(--fp-login-bg);
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(0.35) contrast(1.05) brightness(0.45);
+  z-index: -2;
+}
+.fp-login::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(168, 15, 20, 0.35), transparent 60%),
+    linear-gradient(180deg, rgba(6, 2, 2, 0.82), rgba(6, 2, 2, 0.94));
+  z-index: -1;
+}
+.fp-logo-mark {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto 6px;
+  filter: drop-shadow(0 8px 24px rgba(255, 45, 45, 0.35));
+}
 .fp-glass {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   backdrop-filter: blur(12px);
