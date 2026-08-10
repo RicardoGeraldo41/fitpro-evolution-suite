@@ -1,17 +1,18 @@
-/* Studio Xtreme Workout — glassmorphism premium (azul corporativo / cyan neon) */
+/* Studio Xtreme Workout — glassmorphism premium (vermelho / preto) */
 :root {
-  --fp-bg-grad: radial-gradient(circle at 20% 10%, #0b2f6b 0%, #061127 45%, #01050f 100%);
-  --fp-neon: #38bdf8;
-  --fp-neon2: #2563eb;
-  --fp-neon3: #22d3ee;
+  --fp-bg-grad: radial-gradient(circle at 20% 10%, #2a0708 0%, #140203 45%, #060202 100%);
+  --fp-neon: #ff2d2d;
+  --fp-neon2: #a80f14;
+  --fp-neon3: #ff6b5a;
   --fp-glass: rgba(255, 255, 255, 0.06);
   --fp-glass-strong: rgba(255, 255, 255, 0.10);
-  --fp-border: rgba(125, 190, 255, 0.22);
-  --fp-text: #eaf2ff;
-  --fp-muted: #93aecd;
+  --fp-border: rgba(255, 90, 90, 0.24);
+  --fp-text: #f6eded;
+  --fp-muted: #b79a9a;
   --fp-danger: #ff5d73;
   --fp-ok: #34d399;
   --fp-warn: #fbbf24;
+  --fp-login-bg: url("/__l5e/assets-v1/151da09e-a4d8-4b16-9563-c4da099fcab0/gym-bg.jpg");
 }
 
 body.fp-body {
