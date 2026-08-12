@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState } from "react";
+import { finalizarVenda } from "@/lib/fitpro/pdv.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
