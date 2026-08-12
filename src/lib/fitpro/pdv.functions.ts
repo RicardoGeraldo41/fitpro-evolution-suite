@@ -50,7 +50,7 @@ export const finalizarVenda = createServerFn({ method: "POST" })
     const { data: result, error } = await context.supabase.rpc("finalizar_venda", {
       p_itens: data.itens,
       p_forma: data.forma,
-      p_aluno_id: data.aluno_id ?? null,
+      p_aluno_id: data.aluno_id ?? undefined,
     });
 
     if (error) {
