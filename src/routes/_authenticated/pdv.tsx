@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState } from "react";
+import { finalizarVenda } from "@/lib/fitpro/pdv.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/fitpro/session";
@@ -28,6 +30,7 @@ function PDVPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [pagamento, setPagamento] = useState("DINHEIRO");
   const [log, setLog] = useState<string | null>(null);
+  const finalizar = useServerFn(finalizarVenda);
 
   const load = useCallback(async () => {
     if (!session?.academia_id) return;
@@ -50,21 +53,20 @@ function PDVPage() {
 
   async function fecharVenda() {
     if (!cart.length || !session) { toast.error("Carrinho vazio"); return; }
-    for (const item of cart) {
-      const p = produtos.find((x) => x.id === item.id);
-      if (!p) continue;
-      await supabase.from("produtos").update({ estoque_atual: p.estoque_atual - item.qtd }).eq("id", item.id);
+    try {
+      const res = await finalizar({
+        data: {
+          itens: cart.map((i) => ({ produto_id: i.id, quantidade: i.qtd })),
+          forma: pagamento as "DINHEIRO" | "PIX" | "DEBITO" | "CREDITO" | "BOLETO" | "CORTESIA",
+        },
+      });
+      setLog("Venda fechada • R$ " + fmtBRL(res.total) + " • " + pagamento);
+      toast.success("Venda registrada com sucesso");
+      setCart([]);
+      load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível finalizar a venda.");
     }
-    const { error } = await supabase.from("vendas").insert({
-      items: cart.map((i) => ({ id: i.id, nome: i.nome, preco: i.preco, qtd: i.qtd, meio_pagamento: pagamento })),
-      total,
-      academia_id: session.academia_id,
-    });
-    if (error) { toast.error(error.message); return; }
-    setLog("Venda fechada • R$ " + fmtBRL(total) + " • " + pagamento);
-    toast.success("Venda registrada com sucesso");
-    setCart([]);
-    load();
   }
 
   return (
