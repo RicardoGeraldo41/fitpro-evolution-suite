@@ -1026,6 +1026,64 @@ export type Database = {
           },
         ]
       }
+      venda_itens: {
+        Row: {
+          academia_id: string
+          created_at: string
+          id: string
+          nome_produto: string
+          preco_unitario: number
+          produto_id: string
+          quantidade: number
+          subtotal: number
+          venda_id: string
+        }
+        Insert: {
+          academia_id: string
+          created_at?: string
+          id?: string
+          nome_produto: string
+          preco_unitario: number
+          produto_id: string
+          quantidade: number
+          subtotal: number
+          venda_id: string
+        }
+        Update: {
+          academia_id?: string
+          created_at?: string
+          id?: string
+          nome_produto?: string
+          preco_unitario?: number
+          produto_id?: string
+          quantidade?: number
+          subtotal?: number
+          venda_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venda_itens_academia_id_fkey"
+            columns: ["academia_id"]
+            isOneToOne: false
+            referencedRelation: "academias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venda_itens_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venda_itens_venda_id_fkey"
+            columns: ["venda_id"]
+            isOneToOne: false
+            referencedRelation: "vendas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendas: {
         Row: {
           academia_id: string
@@ -1083,7 +1141,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      finalizar_venda: {
+        Args: { p_aluno_id?: string; p_forma?: string; p_itens: Json }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "DONO" | "ADMIN" | "PERSONAL" | "ALUNO"
