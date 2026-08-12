@@ -30,6 +30,7 @@ function PDVPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [pagamento, setPagamento] = useState("DINHEIRO");
   const [log, setLog] = useState<string | null>(null);
+  const finalizar = useServerFn(finalizarVenda);
 
   const load = useCallback(async () => {
     if (!session?.academia_id) return;
