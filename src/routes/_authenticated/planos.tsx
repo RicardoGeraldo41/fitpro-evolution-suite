@@ -9,9 +9,9 @@ import { fmtBRL } from "@/lib/fitpro/utils";
 export const Route = createFileRoute("/_authenticated/planos")({
   head: () => ({
     meta: [
-      { title: "Planos & Matrículas — Studio Xtreme Workout" },
+      { title: "Planos & Matrículas — FitPro" },
       { name: "description", content: "Cadastre planos da academia e gerencie contratos de matrícula com vencimento e situação." },
-      { property: "og:title", content: "Planos & Matrículas — Studio Xtreme Workout" },
+      { property: "og:title", content: "Planos & Matrículas — FitPro" },
       { property: "og:description", content: "Catálogo de planos, valores e contratos de matrícula dos alunos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

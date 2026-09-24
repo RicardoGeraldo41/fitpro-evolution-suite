@@ -16,35 +16,47 @@ export type Database = {
     Tables: {
       academias: {
         Row: {
+          cidade: string | null
           cnpj: string | null
+          codigo_convite: string
           created_at: string
+          estado: string | null
           fuso_horario: string
           id: string
           logo_url: string | null
           nome: string
           plano_saas: string
+          responsavel: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          cidade?: string | null
           cnpj?: string | null
+          codigo_convite?: string
           created_at?: string
+          estado?: string | null
           fuso_horario?: string
           id?: string
           logo_url?: string | null
           nome: string
           plano_saas?: string
+          responsavel?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          cidade?: string | null
           cnpj?: string | null
+          codigo_convite?: string
           created_at?: string
+          estado?: string | null
           fuso_horario?: string
           id?: string
           logo_url?: string | null
           nome?: string
           plano_saas?: string
+          responsavel?: string | null
           status?: string
           updated_at?: string
         }
@@ -1145,6 +1157,7 @@ export type Database = {
         Args: { p_aluno_id?: string; p_forma?: string; p_itens: Json }
         Returns: Json
       }
+      gerar_codigo_convite: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "DONO" | "ADMIN" | "PERSONAL" | "ALUNO"

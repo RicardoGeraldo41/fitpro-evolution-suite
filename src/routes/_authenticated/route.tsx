@@ -56,7 +56,7 @@ function AuthLayout() {
     return (
       <div className="fp-screen fp-login">
         <div className="fp-glass fp-auth-card" style={{ textAlign: "center" }}>
-          <h1 className="fp-brand">Studio <span>Xtreme Workout</span></h1>
+          <h1 className="fp-brand">Fit<span>Pro</span></h1>
           <p className="fp-subtitle">Conectando ao Lovable Cloud...</p>
         </div>
       </div>
@@ -79,14 +79,14 @@ function AuthLayout() {
         >
           <Menu size={22} />
         </button>
-        <h2 className="fp-brand-mini" style={{ padding: 0 }}>Studio <span>Xtreme Workout</span></h2>
+        <h2 className="fp-brand-mini" style={{ padding: 0 }}>Fit<span>Pro</span></h2>
       </header>
 
       {menuAberto && <div className="fp-backdrop" onClick={() => setMenuAberto(false)} />}
 
       <aside className={"fp-sidebar fp-glass" + (menuAberto ? " open" : "")} aria-label="Navegação principal">
         <div className="fp-sidebar-head">
-          <h2 className="fp-brand-mini">Studio <span>Xtreme Workout</span></h2>
+          <h2 className="fp-brand-mini">Fit<span>Pro</span></h2>
           <p style={{ fontSize: 11, color: "var(--fp-muted)", textTransform: "uppercase", letterSpacing: 1 }}>
             {session.academia_nome}
           </p>

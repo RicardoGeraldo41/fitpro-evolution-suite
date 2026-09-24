@@ -12,9 +12,9 @@ import {
 export const Route = createFileRoute("/_authenticated/biometria")({
   head: () => ({
     meta: [
-      { title: "Biometria & Facial — Studio Xtreme Workout" },
+      { title: "Biometria & Facial — FitPro" },
       { name: "description", content: "Cadastre digital e reconhecimento facial dos alunos para liberação na catraca." },
-      { property: "og:title", content: "Biometria & Facial — Studio Xtreme Workout" },
+      { property: "og:title", content: "Biometria & Facial — FitPro" },
       { property: "og:description", content: "Cadastro biométrico digital e facial com simulador de catraca." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

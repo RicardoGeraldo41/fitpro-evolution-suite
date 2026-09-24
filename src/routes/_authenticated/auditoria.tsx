@@ -6,9 +6,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/auditoria")({
   head: () => ({
     meta: [
-      { title: "Auditoria de Ações — Studio Xtreme Workout" },
+      { title: "Auditoria de Ações — FitPro" },
       { name: "description", content: "Logs de segurança e auditoria das ações executadas na academia." },
-      { property: "og:title", content: "Auditoria de Ações — Studio Xtreme Workout" },
+      { property: "og:title", content: "Auditoria de Ações — FitPro" },
       { property: "og:description", content: "Registro de alterações e ações críticas no sistema para governança." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
