@@ -6,9 +6,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/ranking")({
   head: () => ({
     meta: [
-      { title: "Ranking XP — Studio Xtreme Workout" },
+      { title: "Ranking XP — FitPro" },
       { name: "description", content: "Top 20 alunos da academia no ranking de conquistas e pontos de experiência." },
-      { property: "og:title", content: "Ranking XP — Studio Xtreme Workout" },
+      { property: "og:title", content: "Ranking XP — FitPro" },
       { property: "og:description", content: "Gamificação fitness: ranking de XP e níveis dos alunos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -7,9 +7,9 @@ import { useSession } from "@/lib/fitpro/session";
 export const Route = createFileRoute("/_authenticated/alimentacao")({
   head: () => ({
     meta: [
-      { title: "Plano Alimentar — Studio Xtreme Workout" },
+      { title: "Plano Alimentar — FitPro" },
       { name: "description", content: "Monte planos alimentares personalizados com controle de calorias e macros." },
-      { property: "og:title", content: "Plano Alimentar — Studio Xtreme Workout" },
+      { property: "og:title", content: "Plano Alimentar — FitPro" },
       { property: "og:description", content: "Nutrição e controle de macros para alunos e equipe técnica." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

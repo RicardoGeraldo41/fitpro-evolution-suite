@@ -10,9 +10,9 @@ import { alterarPapelMembro, criarMembroEquipe, removerMembroEquipe } from "@/li
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações da Unidade — Studio Xtreme Workout" },
-      { name: "description", content: "Gestão de equipe, dados da academia e preferências do sistema Studio Xtreme Workout." },
-      { property: "og:title", content: "Configurações da Unidade — Studio Xtreme Workout" },
+      { title: "Configurações da Unidade — FitPro" },
+      { name: "description", content: "Gestão de equipe, dados da academia e preferências do sistema FitPro." },
+      { property: "og:title", content: "Configurações da Unidade — FitPro" },
       { property: "og:description", content: "Configure a academia, gerencie usuários e permissões da equipe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

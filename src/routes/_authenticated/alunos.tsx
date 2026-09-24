@@ -10,9 +10,9 @@ import { gerarFichaTreinoIA } from "@/lib/fitpro/ai.functions";
 export const Route = createFileRoute("/_authenticated/alunos")({
   head: () => ({
     meta: [
-      { title: "Alunos & Cadastro — Studio Xtreme Workout" },
+      { title: "Alunos & Cadastro — FitPro" },
       { name: "description", content: "Cadastro completo de alunos da academia: contato, saúde, situação da matrícula e ficha de treino." },
-      { property: "og:title", content: "Alunos & Cadastro — Studio Xtreme Workout" },
+      { property: "og:title", content: "Alunos & Cadastro — FitPro" },
       { property: "og:description", content: "Gerencie a base de alunos com dados cadastrais, saúde e situação financeira." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

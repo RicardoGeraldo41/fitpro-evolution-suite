@@ -79,10 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Studio Xtreme Workout — Ecossistema de Academias" },
+      { title: "FitPro — Ecossistema de Academias" },
       { name: "description", content: "Gestão completa de academias: biometria, PDV, recorrência, treino imersivo, avaliação antropométrica e IA." },
-      { name: "author", content: "Studio Xtreme Workout" },
-      { property: "og:title", content: "Studio Xtreme Workout" },
+      { name: "author", content: "FitPro" },
+      { property: "og:title", content: "FitPro" },
       { property: "og:description", content: "Ecossistema premium para academias." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

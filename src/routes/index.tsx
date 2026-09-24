@@ -7,13 +7,13 @@ import "@/styles/fitpro.css";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Studio Xtreme Workout — Ecossistema de Academias" },
+      { title: "FitPro — Ecossistema de Academias" },
       {
         name: "description",
         content:
-          "Studio Xtreme Workout: gestão completa de academias com biometria, PDV, recorrência, treino imersivo, avaliação antropométrica e IA.",
+          "FitPro: gestão completa de academias com biometria, PDV, recorrência, treino imersivo, avaliação antropométrica e IA.",
       },
-      { property: "og:title", content: "Studio Xtreme Workout — Ecossistema de Academias" },
+      { property: "og:title", content: "FitPro — Ecossistema de Academias" },
       {
         property: "og:description",
         content:
@@ -39,7 +39,7 @@ function LandingPage() {
       <div className="fp-aurora" aria-hidden="true" />
       <nav className="fp-landing-nav">
         <h1 className="fp-brand" style={{ fontSize: 24 }}>
-          Studio <span>Xtreme Workout</span>
+          Fit<span>Pro</span>
         </h1>
         <div className="fp-landing-nav-actions">
           {loading ? (
@@ -125,7 +125,7 @@ function LandingPage() {
       </main>
 
       <footer className="fp-landing-footer">
-        <p>© {new Date().getFullYear()} Studio Xtreme Workout — Todos os direitos reservados.</p>
+        <p>© {new Date().getFullYear()} FitPro — Todos os direitos reservados.</p>
       </footer>
     </div>
   );
