@@ -1,26 +1,30 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { Building2, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-import { cadastrarPerfil, listarAcademiasPublicas } from "@/lib/fitpro/cadastro.functions";
+import { cadastrarPerfil, consultarConvite } from "@/lib/fitpro/cadastro.functions";
 import { useSession } from "@/lib/fitpro/session";
 import logoFitPro from "@/assets/logo-fitpro.png";
 import "@/styles/fitpro.css";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    tab: search["tab"] === "cadastrar" ? ("cadastrar" as const) : undefined,
+  }),
   head: () => ({
     meta: [
-      { title: "Entrar ou criar perfil — FitPro" },
+      { title: "Entrar ou cadastrar academia — FitPro" },
       {
         name: "description",
         content:
-          "Acesse a plataforma FitPro ou crie seu perfil como dono, personal ou aluno da academia.",
+          "Acesse a plataforma FitPro, cadastre sua academia como gestor ou entre na sua academia com o código de convite.",
       },
-      { property: "og:title", content: "FitPro — Acesso e cadastro" },
+      { property: "og:title", content: "FitPro — Acesso e cadastro de academias" },
       {
         property: "og:description",
-        content: "Gestão fitness premium: entre na sua conta ou cadastre seu perfil.",
+        content: "Plataforma de gestão para academias: crie sua conta ou acesse seu painel.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,14 +33,18 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+type Tipo = "ACADEMIA" | "MEMBRO";
+
 function AuthPage() {
-  const [aba, setAba] = useState<"entrar" | "cadastrar">("entrar");
+  const { tab } = Route.useSearch();
+  const [aba, setAba] = useState<"entrar" | "cadastrar">(tab === "cadastrar" ? "cadastrar" : "entrar");
+  const [tipo, setTipo] = useState<Tipo>("ACADEMIA");
   const [recuperando, setRecuperando] = useState(false);
   const navigate = useNavigate();
   const { session, refresh } = useSession();
-  
+
   const cadastrarFn = useServerFn(cadastrarPerfil);
-  const listarFn = useServerFn(listarAcademiasPublicas);
+  const consultarFn = useServerFn(consultarConvite);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,14 +52,16 @@ function AuthPage() {
   const [ok, setOk] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // cadastro
+  // dados de cadastro
   const [nome, setNome] = useState("");
-  const [novaUnidade, setNovaUnidade] = useState(false);
-  const [academiaId, setAcademiaId] = useState("");
   const [academiaNome, setAcademiaNome] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [convite, setConvite] = useState<{ nome: string; cidade: string | null; estado: string | null } | null>(null);
   const [telefone, setTelefone] = useState("");
   const [cpf, setCpf] = useState("");
-  const [academias, setAcademias] = useState<{ id: string; nome: string }[]>([]);
 
   useEffect(() => {
     document.body.classList.add("fp-body");
@@ -59,19 +69,30 @@ function AuthPage() {
   }, []);
 
   useEffect(() => {
-    if (aba !== "cadastrar") return;
-    listarFn({})
-      .then((lista) => {
-        setAcademias(lista);
-        setAcademiaId((atual) => atual || lista[0]?.id || "");
-        setNovaUnidade(lista.length === 0);
-      })
-      .catch(() => {});
-  }, [aba, listarFn]);
-
-  useEffect(() => {
     if (session) navigate({ to: "/dashboard" });
   }, [session, navigate]);
+
+  // valida o código de convite enquanto o usuário digita
+  useEffect(() => {
+    const limpo = codigo.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (tipo !== "MEMBRO" || limpo.length < 6) {
+      setConvite(null);
+      return;
+    }
+    let ativo = true;
+    const t = setTimeout(() => {
+      consultarFn({ data: { codigo: limpo } })
+        .then((r) => {
+          if (!ativo) return;
+          setConvite(r.encontrado ? { nome: r.nome, cidade: r.cidade, estado: r.estado } : null);
+        })
+        .catch(() => ativo && setConvite(null));
+    }, 350);
+    return () => {
+      ativo = false;
+      clearTimeout(t);
+    };
+  }, [codigo, tipo, consultarFn]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -99,32 +120,43 @@ function AuthPage() {
       setErr("A senha deve ter no mínimo 8 caracteres.");
       return;
     }
-    if (!nome.trim()) {
+    if (nome.trim().length < 2) {
       setErr("Informe seu nome completo.");
       return;
     }
-    const papel = novaUnidade ? "DONO" : "ALUNO";
-    if (papel === "DONO" && academiaNome.trim().length < 2) {
-      setErr("Informe o nome da nova academia.");
-      return;
+    if (tipo === "ACADEMIA") {
+      if (academiaNome.trim().length < 2) return setErr("Informe o nome da academia.");
+      if (cidade.trim().length < 2) return setErr("Informe a cidade da academia.");
+      if (estado.trim().length !== 2) return setErr("Informe a UF com 2 letras (ex.: SP).");
+    } else if (codigo.replace(/[^A-Za-z0-9]/g, "").length < 6) {
+      return setErr("Informe o código de convite da sua academia.");
     }
-    if (papel !== "DONO" && !academiaId) {
-      setErr("Selecione a academia.");
-      return;
-    }
+
     setLoading(true);
     try {
+      const comum = {
+        nome: nome.trim(),
+        email: email.trim().toLowerCase(),
+        senha: password,
+        telefone: telefone.trim() || undefined,
+        cpf: cpf.trim() || undefined,
+      };
       await cadastrarFn({
-        data: {
-          nome: nome.trim(),
-          email: email.trim().toLowerCase(),
-          senha: password,
-          role: papel,
-          academia_id: papel === "DONO" ? undefined : academiaId,
-          academia_nome: papel === "DONO" ? academiaNome.trim() : undefined,
-          telefone: telefone.trim() || undefined,
-          cpf: cpf.trim() || undefined,
-        },
+        data:
+          tipo === "ACADEMIA"
+            ? {
+                tipo: "ACADEMIA" as const,
+                ...comum,
+                academia_nome: academiaNome.trim(),
+                cidade: cidade.trim(),
+                estado: estado.trim().toUpperCase(),
+                cnpj: cnpj.trim() || undefined,
+              }
+            : {
+                tipo: "MEMBRO" as const,
+                ...comum,
+                codigo_convite: codigo.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+              },
       });
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
@@ -160,11 +192,13 @@ function AuthPage() {
     <div className="fp-screen fp-login">
       <div className="fp-aurora" aria-hidden="true" />
       <div className="fp-glass fp-auth-card fp-rise">
-        <img src={logoFitPro} alt="Logo FitPro" className="fp-logo-mark" />
+        <img src={logoFitPro} alt="Logo FitPro" className="fp-logo-mark" width={816} height={816} />
         <h1 className="fp-brand" style={{ textAlign: "center" }}>
           Fit<span>Pro</span>
         </h1>
-        <p className="fp-subtitle" style={{ textAlign: "center" }}>Ecossistema Premium de Gestão Fitness</p>
+        <p className="fp-subtitle" style={{ textAlign: "center" }}>
+          Plataforma de gestão para academias
+        </p>
 
         <div className="fp-tabs" role="tablist">
           <button
@@ -191,7 +225,7 @@ function AuthPage() {
               setOk(null);
             }}
           >
-            Criar perfil
+            Criar conta
           </button>
         </div>
 
@@ -204,7 +238,7 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="dono@fitpro.local"
+              placeholder="voce@suaacademia.com"
               required
             />
             <label className="fp-label">Senha</label>
@@ -223,7 +257,7 @@ function AuthPage() {
               disabled={loading}
               style={{ marginTop: 14, width: "100%" }}
             >
-              {loading ? "Autenticando..." : "Acessar Plataforma"}
+              {loading ? "Autenticando..." : "Acessar plataforma"}
             </button>
             <button
               type="button"
@@ -237,6 +271,35 @@ function AuthPage() {
           </form>
         ) : (
           <form onSubmit={handleCadastro} className="fp-fade">
+            <div className="fp-choice-grid">
+              <button
+                type="button"
+                className={"fp-choice" + (tipo === "ACADEMIA" ? " active" : "")}
+                onClick={() => {
+                  setTipo("ACADEMIA");
+                  setErr(null);
+                }}
+                aria-pressed={tipo === "ACADEMIA"}
+              >
+                <Building2 size={18} />
+                <strong>Sou gestor</strong>
+                <span>Cadastrar minha academia na plataforma</span>
+              </button>
+              <button
+                type="button"
+                className={"fp-choice" + (tipo === "MEMBRO" ? " active" : "")}
+                onClick={() => {
+                  setTipo("MEMBRO");
+                  setErr(null);
+                }}
+                aria-pressed={tipo === "MEMBRO"}
+              >
+                <UserPlus size={18} />
+                <strong>Sou aluno</strong>
+                <span>Entrar com o código da minha academia</span>
+              </button>
+            </div>
+
             <label className="fp-label">Nome completo</label>
             <input
               className="fp-input"
@@ -246,75 +309,86 @@ function AuthPage() {
               required
             />
 
-            {novaUnidade ? (
+            {tipo === "ACADEMIA" ? (
               <>
                 <label className="fp-label">Nome da academia</label>
                 <input
                   className="fp-input"
                   value={academiaNome}
                   onChange={(e) => setAcademiaNome(e.target.value)}
-                  placeholder="Ex.: FitPro Centro"
+                  placeholder="Ex.: Academia Alpha"
                   required
                 />
-                {academias.length > 0 && (
-                  <button
-                    type="button"
-                    className="fp-btn fp-btn-ghost"
-                    style={{ marginTop: 8 }}
-                    onClick={() => setNovaUnidade(false)}
-                  >
-                    Já existe minha academia
-                  </button>
-                )}
+                <div className="fp-grid-2">
+                  <div>
+                    <label className="fp-label">Cidade</label>
+                    <input
+                      className="fp-input"
+                      value={cidade}
+                      onChange={(e) => setCidade(e.target.value)}
+                      placeholder="São Paulo"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="fp-label">UF</label>
+                    <input
+                      className="fp-input"
+                      value={estado}
+                      maxLength={2}
+                      onChange={(e) => setEstado(e.target.value.toUpperCase())}
+                      placeholder="SP"
+                      required
+                    />
+                  </div>
+                </div>
+                <label className="fp-label">CNPJ (opcional)</label>
+                <input
+                  className="fp-input"
+                  value={cnpj}
+                  onChange={(e) => setCnpj(e.target.value)}
+                  placeholder="00.000.000/0000-00"
+                />
               </>
             ) : (
               <>
-                <label className="fp-label">Academia</label>
-                <select
-                  className="fp-select"
-                  value={academiaId}
-                  onChange={(e) => setAcademiaId(e.target.value)}
+                <label className="fp-label">Código de convite da academia</label>
+                <input
+                  className="fp-input fp-input-code"
+                  value={codigo}
+                  maxLength={12}
+                  onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                  placeholder="EX: A7K2M9QP"
                   required
-                >
-                  <option value="">Selecione a unidade</option>
-                  {academias.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nome}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  className="fp-btn fp-btn-ghost"
-                  style={{ marginTop: 8 }}
-                  onClick={() => setNovaUnidade(true)}
-                >
-                  Cadastrar uma nova academia
-                </button>
+                />
+                {codigo.replace(/[^A-Z0-9]/g, "").length >= 6 && (
+                  <p className={convite ? "fp-ok-msg" : "fp-error"} style={{ marginTop: 6 }}>
+                    {convite
+                      ? `Academia encontrada: ${convite.nome}${convite.cidade ? ` — ${convite.cidade}/${convite.estado ?? ""}` : ""}`
+                      : "Código não encontrado."}
+                  </p>
+                )}
+                <div className="fp-grid-2">
+                  <div>
+                    <label className="fp-label">Telefone</label>
+                    <input
+                      className="fp-input"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+                  <div>
+                    <label className="fp-label">CPF</label>
+                    <input
+                      className="fp-input"
+                      value={cpf}
+                      onChange={(e) => setCpf(e.target.value)}
+                      placeholder="000.000.000-00"
+                    />
+                  </div>
+                </div>
               </>
-            )}
-
-            {!novaUnidade && (
-              <div className="fp-grid-2">
-                <div>
-                  <label className="fp-label">Telefone</label>
-                  <input
-                    className="fp-input"
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
-                    placeholder="(00) 00000-0000"
-                  />
-                </div>
-                <div>
-                  <label className="fp-label">CPF</label>
-                  <input
-                    className="fp-input"
-                    value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
-                    placeholder="000.000.000-00"
-                  />
-                </div>
-              </div>
             )}
 
             <label className="fp-label">Email</label>
@@ -343,7 +417,11 @@ function AuthPage() {
               disabled={loading}
               style={{ marginTop: 14, width: "100%" }}
             >
-              {loading ? "Criando perfil..." : "Criar meu perfil"}
+              {loading
+                ? "Criando conta..."
+                : tipo === "ACADEMIA"
+                  ? "Cadastrar academia"
+                  : "Entrar na academia"}
             </button>
           </form>
         )}
@@ -351,7 +429,7 @@ function AuthPage() {
         {err && <p className="fp-error">{err}</p>}
         {ok && <p className="fp-ok-msg">{ok}</p>}
         <p style={{ fontSize: 11, color: "var(--fp-muted)", marginTop: 14, textAlign: "center" }}>
-          Cada usuário cria seu próprio perfil. Não há contas pré-criadas.
+          Gestores criam a academia e recebem um código de convite para compartilhar com alunos e equipe.
         </p>
       </div>
     </div>
