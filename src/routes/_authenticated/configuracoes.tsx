@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 });
 
 type Membro = { user_id: string; role: Role; nome: string; email: string | null };
-type Academia = { id: string; nome: string; cnpj: string | null; fuso_horario: string; logo_url: string | null; plano_saas: string; status: string };
+type Academia = { id: string; nome: string; cnpj: string | null; fuso_horario: string; logo_url: string | null; plano_saas: string; status: string; cidade: string | null; estado: string | null; codigo_convite: string };
 
 const novoSchema = z.object({
   nome: z.string().trim().min(2, "Nome muito curto").max(120),
@@ -48,7 +48,7 @@ function ConfiguracoesPage() {
     if (!session) return;
     const { data: ac } = await supabase
       .from("academias")
-      .select("id,nome,cnpj,fuso_horario,logo_url,plano_saas,status")
+      .select("id,nome,cnpj,fuso_horario,logo_url,plano_saas,status,cidade,estado,codigo_convite")
       .eq("id", session.academia_id)
       .maybeSingle();
     setAcademia((ac ?? null) as Academia | null);
