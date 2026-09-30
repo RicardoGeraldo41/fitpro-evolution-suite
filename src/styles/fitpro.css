@@ -1,4 +1,4 @@
-/* FitPro — design system (dark premium / carmesim) */
+/* FitPro — design system (dark corporate SaaS / cyan) */
 :root {
   /* superfícies */
   --fp-bg: #080b11;
@@ -711,4 +711,60 @@ body.fp-body::after {
   .fp-landing-nav-actions { width: 100%; justify-content: flex-start; }
   .fp-landing-cta { flex-direction: column; width: 100%; }
   .fp-landing-cta a { width: 100%; justify-content: center; }
+}
+
+/* ===== Escolha de tipo de cadastro (gestor x aluno) ===== */
+.fp-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+.fp-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 12px 13px;
+  border-radius: var(--fp-radius);
+  border: 1px solid var(--fp-border);
+  background: var(--fp-surface-2);
+  color: var(--fp-text-2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+.fp-choice:hover { border-color: var(--fp-border-strong); transform: translateY(-1px); }
+.fp-choice strong { font-size: 13px; color: var(--fp-text); }
+.fp-choice span { font-size: 11px; line-height: 1.35; color: var(--fp-muted); }
+.fp-choice.active {
+  border-color: var(--fp-border-accent);
+  background: var(--fp-primary-soft);
+  color: var(--fp-text);
+}
+.fp-choice.active strong { color: var(--fp-primary); }
+@media (max-width: 480px) {
+  .fp-choice-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== Código de convite ===== */
+.fp-input-code {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-weight: 700;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  text-align: center;
+}
+.fp-code-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px dashed var(--fp-border-accent);
+  background: var(--fp-primary-soft);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--fp-primary);
 }
