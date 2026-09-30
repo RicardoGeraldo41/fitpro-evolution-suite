@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
 });
 
 type Membro = { user_id: string; role: Role; nome: string; email: string | null };
-type Academia = { id: string; nome: string; cnpj: string | null; fuso_horario: string; logo_url: string | null; plano_saas: string; status: string };
+type Academia = { id: string; nome: string; cnpj: string | null; fuso_horario: string; logo_url: string | null; plano_saas: string; status: string; cidade: string | null; estado: string | null; codigo_convite: string };
 
 const novoSchema = z.object({
   nome: z.string().trim().min(2, "Nome muito curto").max(120),
@@ -48,7 +48,7 @@ function ConfiguracoesPage() {
     if (!session) return;
     const { data: ac } = await supabase
       .from("academias")
-      .select("id,nome,cnpj,fuso_horario,logo_url,plano_saas,status")
+      .select("id,nome,cnpj,fuso_horario,logo_url,plano_saas,status,cidade,estado,codigo_convite")
       .eq("id", session.academia_id)
       .maybeSingle();
     setAcademia((ac ?? null) as Academia | null);
@@ -146,6 +146,29 @@ function ConfiguracoesPage() {
       <header className="fp-view-header">
         <h2>Configurações da Academia & Equipe</h2>
       </header>
+
+      {academia && (
+        <div className="fp-glass-inner" style={{ marginBottom: 14, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <label className="fp-label" style={{ marginTop: 0 }}>Código de convite da academia</label>
+            <span className="fp-code-box">{academia.codigo_convite}</span>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--fp-muted)", maxWidth: 380, margin: 0 }}>
+            Compartilhe este código com alunos e colaboradores: é com ele que eles criam a conta e entram
+            nesta academia.
+          </p>
+          <button
+            type="button"
+            className="fp-btn fp-btn-secondary"
+            onClick={() => {
+              navigator.clipboard?.writeText(academia.codigo_convite);
+              toast.success("Código copiado");
+            }}
+          >
+            Copiar código
+          </button>
+        </div>
+      )}
 
       {academia && (
         <form className="fp-glass-inner" onSubmit={salvarAcademia} style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))" }}>
