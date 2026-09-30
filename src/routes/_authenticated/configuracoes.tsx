@@ -148,6 +148,29 @@ function ConfiguracoesPage() {
       </header>
 
       {academia && (
+        <div className="fp-glass-inner" style={{ marginBottom: 14, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <label className="fp-label" style={{ marginTop: 0 }}>Código de convite da academia</label>
+            <span className="fp-code-box">{academia.codigo_convite}</span>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--fp-muted)", maxWidth: 380, margin: 0 }}>
+            Compartilhe este código com alunos e colaboradores: é com ele que eles criam a conta e entram
+            nesta academia.
+          </p>
+          <button
+            type="button"
+            className="fp-btn fp-btn-secondary"
+            onClick={() => {
+              navigator.clipboard?.writeText(academia.codigo_convite);
+              toast.success("Código copiado");
+            }}
+          >
+            Copiar código
+          </button>
+        </div>
+      )}
+
+      {academia && (
         <form className="fp-glass-inner" onSubmit={salvarAcademia} style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))" }}>
           <div>
             <label className="fp-label">Nome da academia</label>
