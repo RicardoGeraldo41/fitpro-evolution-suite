@@ -38,7 +38,7 @@
   --fp-shadow-lg: 0 24px 60px -28px rgba(0, 0, 0, 0.85);
 
   --fp-radius: 14px;
-  --fp-login-bg: url("../assets/auth-bg.jpg");
+  --fp-login-bg: url("/auth-bg.jpg");
 }
 
 body.fp-body {
