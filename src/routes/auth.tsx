@@ -10,9 +10,8 @@ import logoFitPro from "@/assets/logo-fitpro.png";
 import "@/styles/fitpro.css";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    tab: search["tab"] === "cadastrar" ? ("cadastrar" as const) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { tab?: "cadastrar" } =>
+    search["tab"] === "cadastrar" ? { tab: "cadastrar" } : {},
   head: () => ({
     meta: [
       { title: "Entrar ou cadastrar academia — FitPro" },
